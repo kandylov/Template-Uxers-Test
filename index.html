@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Informe de testeo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:#1B2A4A;
+  --accent:#2F5FD1;
+  --accent-soft:#E7EDFB;
+  --bg:#F5F6FA;
+  --border:#DCE1EC;
+  --muted:#6B7690;
+  --paper:#FFFFFF;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:'Archivo', -apple-system, sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  padding:24px 0 80px;
+}
+
+.toolbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:var(--paper);
+  border-bottom:1px solid var(--border);
+  padding:14px 24px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:28px;
+}
+.toolbar .spacer{flex:1;}
+.toolbar small{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:11px;}
+
+button{
+  font-family:'Archivo',sans-serif;
+  cursor:pointer;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--paper);
+  color:var(--ink);
+  padding:8px 14px;
+  font-size:13px;
+  font-weight:500;
+  transition:.15s;
+}
+button:hover{background:var(--accent-soft); border-color:var(--accent);}
+button.primary{background:#FF585C; color:#fff; border-color:#FF585C;}
+button.primary:hover{background:#E84246;}
+button.ghost{background:transparent; border:none; color:var(--muted); padding:4px 8px; font-size:12px;}
+button.ghost:hover{color:#C0392B; background:none;}
+button.small{padding:5px 10px; font-size:12px;}
+.toolbar button{border-radius:999px;}
+.link-btn{
+  background:none;
+  border:none;
+  padding:2px 0;
+  color:var(--accent);
+  font-weight:600;
+  font-size:13px;
+}
+.link-btn:hover{background:none; border-color:transparent; text-decoration:underline;}
+.add-row button{border-radius:999px;}
+
+.page{
+  max-width:794px;
+  margin:0 auto 40px;
+  background:var(--paper);
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:0 1px 3px rgba(20,30,60,.06);
+  padding:48px 56px 40px;
+  position:relative;
+}
+
+.page-toolbar{
+  position:absolute;
+  top:16px;
+  right:16px;
+  display:flex;
+  gap:6px;
+}
+
+[contenteditable]{outline:none;}
+[contenteditable]:focus{background:var(--accent-soft); border-radius:4px;}
+[data-placeholder]:empty:before{content:attr(data-placeholder); color:#B7BECF;}
+
+h1.doc-title{
+  font-size:26px;
+  font-weight:700;
+  margin:0 0 4px;
+  letter-spacing:-.01em;
+  color:#FF585C;
+}
+.doc-sub{color:var(--muted); font-size:13px; margin-bottom:28px; font-family:'JetBrains Mono',monospace;}
+
+.profile{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  background:#F7F7F7;
+  border:none;
+  border-radius:10px;
+  padding:18px 20px;
+  margin-bottom:32px;
+}
+.profile .field{
+  border-right:1px solid var(--border);
+  padding-right:14px;
+}
+.profile .field:last-child{
+  border-right:none;
+  padding-right:0;
+}
+.profile .field label{
+  display:block;
+  font-size:10.5px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:#000;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.profile .field [contenteditable]{
+  font-size:14px;
+  min-height:18px;
+  border-bottom:1px solid transparent;
+}
+.profile .field [contenteditable]:hover{border-bottom:1px solid var(--border);}
+.profile .field select{
+  font-family:'Archivo',sans-serif;
+  font-size:14px;
+  border:none;
+  border-bottom:1px solid transparent;
+  background:transparent;
+  padding:0;
+  width:100%;
+  color:var(--ink);
+}
+.profile .field select:hover{border-bottom:1px solid var(--border);}
+
+.section{
+  margin-bottom:30px;
+  padding-bottom:6px;
+  page-break-inside:avoid;
+}
+.section-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:6px;
+  margin-bottom:14px;
+}
+.section-title{
+  font-size:16px;
+  font-weight:700;
+  flex:1;
+}
+.section-delete{
+  width:26px;
+  height:26px;
+  border:none;
+  background:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  flex-shrink:0;
+  opacity:.85;
+}
+.section-delete:hover{opacity:1;}
+.section-delete svg{display:block; width:26px; height:26px;}
+.qa-row{
+  margin-bottom:16px;
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+}
+.qa-row .qa-main{flex:1;}
+.qa-row .pregunta{
+  font-weight:600;
+  font-size:13.5px;
+  margin-bottom:6px;
+}
+.qa-row .observacion{
+  font-size:13px;
+  min-height:38px;
+  border:1px dashed var(--border);
+  border-radius:6px;
+  padding:8px 10px;
+  color:#333;
+  line-height:1.5;
+  background:#F7F7F7;
+}
+.qa-row .row-actions{padding-top:2px;}
+
+.add-row{
+  margin-top:4px;
+  margin-bottom:32px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.survey-row{
+  border:none;
+  border-radius:10px;
+  padding:16px 18px;
+  margin-bottom:16px;
+  position:relative;
+  background:#F7F7F7;
+}
+.survey-row-close{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:36px;
+  height:36px;
+  border:none;
+  background:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  opacity:.85;
+}
+.survey-row-close:hover{opacity:1;}
+.survey-row-close svg{display:block; width:36px; height:36px;}
+.survey-question{
+  font-weight:600;
+  font-size:13.5px;
+  margin-bottom:12px;
+}
+.faces{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.face-labels-edit{
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  color:var(--muted);
+  margin-top:8px;
+}
+.face-labels-edit [contenteditable]{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  min-width:60px;
+}
+.face-labels-edit .right{text-align:right;}
+.face-btn{
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:50%;
+  width:44px;
+  height:44px;
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+}
+.face-btn.selected{
+  background:var(--accent);
+  border-color:var(--accent);
+  transform:scale(1.08);
+}
+
+.section-footer-actions{
+  display:flex;
+  gap:8px;
+  margin-top:4px;
+}
+
+.footer-note{
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  margin-top:-24px;
+  margin-bottom:40px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+@media print{
+  html, body, *{
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+    color-adjust:exact !important;
+  }
+  body{background:#fff; padding:0; margin:0;}
+  .toolbar, .no-print{display:none !important;}
+  .page{
+    box-shadow:none;
+    border:none;
+    border-radius:0;
+    max-width:none;
+    margin:0;
+    padding:14mm 16mm;
+    page-break-after:always;
+  }
+  .page:last-child{page-break-after:auto;}
+  [data-placeholder]:empty:before{color:transparent;}
+  @page{size:A4; margin:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <button class="primary" onclick="addParticipant()">+ Nuevo entrevistado</button>
+  <button onclick="window.print()">Exportar a PDF</button>
+  <div class="spacer"></div>
+  <small>Edita el título y las secciones de la primera hoja para armar la plantilla. "+ Nuevo entrevistado" clona esa estructura en blanco para cada persona evaluada.</small>
+</div>
+
+<div id="pages"></div>
+
+<script>
+let sectionCounter = 0;
+
+function uid(){ return 'id'+(Math.random().toString(36).slice(2,9)); }
+
+// Al pegar dentro de cualquier campo editable, se pega solo el texto plano
+// para que respete siempre la tipografía y el estilo del documento.
+document.addEventListener('paste', function(e){
+  const target = e.target.closest && e.target.closest('[contenteditable="true"]');
+  if(!target) return;
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  const selection = window.getSelection();
+  if(!selection.rangeCount) return;
+  selection.deleteFromDocument();
+  const range = selection.getRangeAt(0);
+  range.deleteContents();
+  range.insertNode(document.createTextNode(text));
+  range.collapse(false);
+  selection.removeAllRanges();
+  selection.addRange(range);
+});
+
+function makeQARow(pregunta="", observacion=""){
+  const row = document.createElement('div');
+  row.className = 'qa-row';
+  row.innerHTML = `
+    <div class="qa-main">
+      <div class="pregunta" contenteditable="true" data-placeholder="Escribe la pregunta...">${pregunta}</div>
+      <div class="observacion obs-field" contenteditable="true" data-placeholder="Observaciones...">${observacion}</div>
+    </div>
+    <div class="row-actions">
+      <button class="ghost no-print" onclick="this.closest('.qa-row').remove()">✕</button>
+    </div>`;
+  return row;
+}
+
+function makeSection(title="Nueva sección"){
+  const sec = document.createElement('div');
+  sec.className = 'section';
+  sec.innerHTML = `
+    <div class="section-head">
+      <div class="section-title" contenteditable="true">${title}</div>
+      <button class="section-delete no-print" onclick="this.closest('.section').remove()" title="Eliminar sección"><svg width="26" height="26" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="0.5" y="0.5" width="29" height="29" rx="14.5" fill="#FFFFFF" stroke="#DCE1EC"/>
+<path d="M15 7.5C15.8502 7.50005 16.6663 7.83735 17.2676 8.43848C17.8688 9.0397 18.2069 9.85581 18.207 10.7061V10.7197H21.4404C21.7292 10.7199 21.9638 10.9543 21.9639 11.2432C21.9639 11.532 21.7293 11.7664 21.4404 11.7666H20.3535V20.9033C20.3534 21.3265 20.1849 21.733 19.8857 22.0322C19.5864 22.3314 19.1801 22.4999 18.7568 22.5H11.2432C10.8198 22.4999 10.4136 22.3315 10.1143 22.0322C9.81494 21.7329 9.64656 21.3266 9.64648 20.9033V11.7666H8.55957C8.27075 11.7664 8.03711 11.532 8.03711 11.2432C8.03717 10.9544 8.27079 10.7199 8.55957 10.7197H11.7939V10.7061C11.7941 9.85581 12.1312 9.0397 12.7324 8.43848C13.3337 7.83734 14.1498 7.50006 15 7.5ZM10.6934 20.9033C10.6934 21.0489 10.7508 21.189 10.8535 21.292C10.9567 21.3951 11.0974 21.453 11.2432 21.4531H18.7568C18.9026 21.4531 19.0424 21.395 19.1455 21.292C19.2485 21.1889 19.3066 21.049 19.3066 20.9033V11.7666H10.6934V20.9033ZM13.3896 13.9424C13.6785 13.9424 13.9129 14.176 13.9131 14.4648V18.7598C13.9129 19.0486 13.6785 19.2832 13.3896 19.2832C13.1009 19.283 12.8664 19.0485 12.8662 18.7598V14.4648C12.8664 14.1761 13.1009 13.9426 13.3896 13.9424ZM16.6094 13.9424C16.8983 13.9424 17.1326 14.176 17.1328 14.4648V18.7598C17.1327 19.0486 16.8983 19.2832 16.6094 19.2832C16.3208 19.2828 16.0871 19.0484 16.0869 18.7598V14.4648C16.0871 14.1762 16.3208 13.9427 16.6094 13.9424ZM15 8.54688C14.4272 8.54693 13.8777 8.77469 13.4727 9.17969C13.0679 9.58462 12.84 10.1335 12.8398 10.7061V10.7197H17.1602V10.7061C17.16 10.1335 16.9322 9.58463 16.5273 9.17969C16.1223 8.77464 15.5728 8.54693 15 8.54688Z" fill="#0F202B"/>
+</svg></button>
+    </div>
+    <div class="qa-list"></div>
+    <div class="section-footer-actions no-print">
+      <button class="link-btn" onclick="addQuestion(this)">+ Agregar pregunta</button>
+    </div>`;
+  sec.querySelector('.qa-list').appendChild(makeQARow());
+  return sec;
+}
+
+function addSection(btn){
+  const container = btn ? btn.closest('.page').querySelector('.sections') : document.querySelector('.sections');
+  container.appendChild(makeSection());
+}
+
+function addQuestion(btn){
+  const section = btn.closest('.section');
+  section.querySelector('.qa-list').appendChild(makeQARow());
+}
+
+function makeSurveyRow(question="¿Qué tan claro fue esto?", left="Muy poco claro", right="Muy claro"){
+  const row = document.createElement('div');
+  row.className = 'survey-row';
+  const faceUid = uid();
+  row.innerHTML = `
+    <button class="ghost no-print survey-row-close" onclick="this.closest('.survey-row').remove()" title="Eliminar pregunta"><svg width="36" height="36" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="30" height="30" rx="15" fill="#F7F7F7"/>
+<g clip-path="url(#clipX_${faceUid})">
+<path d="M9.6967 19.5605L14.2904 14.9669L9.72705 10.4036C9.52272 10.1992 9.52276 9.86792 9.72705 9.66357C9.93139 9.45923 10.2627 9.45923 10.467 9.66357L15.0304 14.2269L19.5633 9.69393C19.7676 9.48958 20.099 9.48958 20.3033 9.69393C20.5076 9.89827 20.5076 10.2296 20.3033 10.4339L15.7703 14.9669L20.3337 19.5302C20.538 19.7345 20.538 20.0658 20.3337 20.2702C20.1293 20.4745 19.798 20.4745 19.5937 20.2702L15.0304 15.7069L10.4367 20.3005C10.2324 20.5049 9.90104 20.5049 9.6967 20.3005C9.49236 20.0962 9.49236 19.7649 9.6967 19.5605Z" fill="#0F202B"/>
+</g>
+<defs>
+<clipPath id="clipX_${faceUid}">
+<rect width="18" height="18" fill="white" transform="translate(6 6)"/>
+</clipPath>
+</defs>
+</svg></button>
+    <div class="survey-question" contenteditable="true" data-placeholder="Pregunta de la encuesta...">${question}</div>
+    <div class="faces" data-group="${faceUid}">
+      <button class="face-btn no-print-disable" onclick="selectFace(this)" data-value="1">😞</button>
+      <button class="face-btn" onclick="selectFace(this)" data-value="2">🙁</button>
+      <button class="face-btn" onclick="selectFace(this)" data-value="3">😐</button>
+      <button class="face-btn" onclick="selectFace(this)" data-value="4">🙂</button>
+      <button class="face-btn" onclick="selectFace(this)" data-value="5">😄</button>
+    </div>
+    <div class="face-labels-edit">
+      <div class="left" contenteditable="true" data-placeholder="1 = ...">${left}</div>
+      <div class="right" contenteditable="true" data-placeholder="5 = ...">${right}</div>
+    </div>
+  `;
+  return row;
+}
+
+function selectFace(btn){
+  const group = btn.parentElement;
+  group.querySelectorAll('.face-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function addSurveyQuestion(btn){
+  const container = btn.closest('.page').querySelector('.survey-list');
+  container.appendChild(makeSurveyRow());
+}
+
+function makeParticipantPage(base){
+  const page = document.createElement('div');
+  page.className = 'page';
+
+  if(!base){
+    page.innerHTML = `
+      <div class="page-toolbar no-print">
+        <button class="ghost" onclick="removePage(this)" title="Eliminar hoja">✕</button>
+      </div>
+      <h1 class="doc-title" contenteditable="true" data-placeholder="Título del testeo">Informe de testeo de usabilidad — Onboarding app</h1>
+      <div class="doc-sub" contenteditable="true" data-placeholder="Subtítulo u objetivo del testeo (opcional)">Objetivo: evaluar comprensión y facilidad de uso del flujo inicial</div>
+
+      <div class="profile">
+        <div class="field">
+          <label>Nombre</label>
+          <div class="profile-field" contenteditable="true" data-placeholder="Nombre del entrevistado">&nbsp;</div>
+        </div>
+        <div class="field">
+          <label>Edad</label>
+          <div class="profile-field" contenteditable="true" data-placeholder="Edad">&nbsp;</div>
+        </div>
+        <div class="field">
+          <label>Grupo familiar</label>
+          <div class="profile-field" contenteditable="true" data-placeholder="Ej: pareja, 2 hijos">&nbsp;</div>
+        </div>
+        <div class="field">
+          <label>Género</label>
+          <select class="profile-field profile-gender">
+            <option value="" disabled selected>Seleccionar</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Masculino">Masculino</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sections"></div>
+
+      <div class="add-row no-print">
+        <button onclick="addSection(this)">+ Agregar sección</button>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title" contenteditable="true">Encuesta de satisfacción</div>
+        </div>
+        <div class="survey-list"></div>
+        <div class="section-footer-actions no-print">
+          <button class="link-btn" onclick="addSurveyQuestion(this)">+ Agregar pregunta de encuesta</button>
+        </div>
+      </div>
+    `;
+    const sectionsEl = page.querySelector('.sections');
+    sectionsEl.appendChild(makeSection('Preguntas de introducción'));
+    sectionsEl.appendChild(makeSection('Observar la home'));
+    page.querySelector('.survey-list').appendChild(makeSurveyRow('¿Qué tan claro fue navegar la home?','Muy poco claro','Muy claro'));
+    page.querySelector('.survey-list').appendChild(makeSurveyRow('¿Qué tan útil te pareció esta sección?','Poco útil','Muy útil'));
+  } else {
+    page.innerHTML = base.innerHTML;
+    // limpiar datos propios del entrevistado, mantener estructura de preguntas
+    page.querySelectorAll('div.profile-field').forEach(el=>el.innerHTML='&nbsp;');
+    const genderSelect = page.querySelector('.profile-gender');
+    if(genderSelect) genderSelect.selectedIndex = 0;
+    page.querySelectorAll('.obs-field').forEach(el=>el.innerHTML='');
+    page.querySelectorAll('.face-btn').forEach(el=>el.classList.remove('selected'));
+  }
+  return page;
+}
+
+function addParticipant(){
+  const pagesEl = document.getElementById('pages');
+  const firstPage = pagesEl.querySelector('.page');
+  const newPage = makeParticipantPage(firstPage);
+  pagesEl.appendChild(newPage);
+  newPage.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function removePage(btn){
+  const pagesEl = document.getElementById('pages');
+  if(pagesEl.querySelectorAll('.page').length <= 1){
+    alert('Se necesita al menos una hoja de plantilla.');
+    return;
+  }
+  btn.closest('.page').remove();
+}
+
+// inicializar con la hoja plantilla
+document.getElementById('pages').appendChild(makeParticipantPage());
+</script>
+
+</body>
+</html>
