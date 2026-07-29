@@ -327,6 +327,123 @@ h1.doc-title{
   touch-action:none;
 }
 .criticidad-marker:active{cursor:grabbing; transition:none;}
+.criticidad-marker.read-only{cursor:default;}
+
+/* ---------- Resumen final ---------- */
+.summary-page .doc-title{color:#FF585C;}
+.summary-meta{
+  color:var(--muted);
+  font-size:13px;
+  font-family:'JetBrains Mono',monospace;
+  margin:-8px 0 28px;
+}
+.exec-summary{
+  background:#F7F7F7;
+  border-radius:10px;
+  padding:22px 26px;
+  font-size:14.5px;
+  line-height:1.65;
+  margin-bottom:8px;
+}
+.exec-summary p{margin:0 0 12px;}
+.exec-summary p:last-child{margin-bottom:0;}
+.exec-summary b{font-weight:700;}
+.exec-stats{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:28px;
+}
+.exec-stat{
+  flex:1;
+  min-width:120px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px 16px;
+  text-align:center;
+}
+.exec-stat .num{font-size:26px; font-weight:800; color:var(--ink); line-height:1;}
+.exec-stat .lbl{font-size:11px; color:var(--muted); margin-top:6px;}
+
+.task-summary{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px 18px 4px;
+  margin-bottom:16px;
+}
+.task-summary-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:2px;
+  flex-wrap:wrap;
+}
+.task-summary-head .title{font-weight:700; font-size:14px;}
+.compliance-chip{
+  font-size:11px;
+  font-weight:700;
+  padding:3px 10px;
+  border-radius:999px;
+  white-space:nowrap;
+}
+.compliance-chip.ok{background:#E1F9EF; color:#00874E;}
+.compliance-chip.warn{background:#FFF1D6; color:#8A5700;}
+.compliance-chip.bad{background:#FFE1E6; color:#B10F30;}
+.task-summary .n-count{font-size:11px; color:var(--muted); margin:2px 0 12px;}
+.task-summary .criticidad-widget{background:transparent; padding:0; gap:16px;}
+.task-summary .recommendation{
+  font-size:12.5px;
+  color:var(--ink);
+  background:#F7F7F7;
+  border-radius:8px;
+  padding:10px 12px;
+  margin:12px 0 14px;
+}
+
+.csat-summary-row{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px 18px;
+  margin-bottom:12px;
+}
+.csat-summary-row .avg-face{font-size:30px; line-height:1;}
+.csat-summary-row .meta{flex:1;}
+.csat-summary-row .meta .q{font-weight:600; font-size:13.5px; margin-bottom:4px;}
+.csat-summary-row .meta .labels{font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace;}
+.csat-summary-row .avg-num{font-size:20px; font-weight:800; min-width:52px; text-align:right;}
+
+.obs-details{
+  border:1px solid var(--border);
+  border-radius:8px;
+  margin-bottom:10px;
+  overflow:hidden;
+}
+.obs-details summary{
+  padding:10px 14px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  background:#F7F7F7;
+}
+.obs-details .obs-list{padding:4px 14px 12px;}
+.obs-details .obs-item{
+  font-size:12.5px;
+  padding:8px 0;
+  border-top:1px solid var(--border);
+}
+.obs-details .obs-item:first-child{border-top:none;}
+.obs-details .obs-item b{display:block; margin-bottom:2px;}
+.obs-details .obs-item span{color:var(--muted);}
+.empty-note{
+  font-size:12.5px;
+  color:var(--muted);
+  font-style:italic;
+  padding:10px 0;
+}
 
 .add-row{
   margin-top:4px;
@@ -416,6 +533,82 @@ h1.doc-title{
   font-family:'JetBrains Mono',monospace;
 }
 
+/* ---------- Resumen de insights ---------- */
+.summary-page .doc-title{color:#FF585C;}
+.insight-section{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:24px 28px;
+  margin-bottom:28px;
+}
+.insight-section h3{
+  font-size:17px;
+  font-weight:700;
+  margin:0 0 4px;
+}
+.insight-meta{
+  font-size:12px;
+  color:var(--muted);
+  margin:0 0 16px;
+}
+.insight-question{
+  margin-top:20px;
+  padding-top:16px;
+  border-top:1px dashed var(--border);
+}
+.insight-question .q-text{
+  font-weight:600;
+  font-size:13.5px;
+  margin-bottom:10px;
+}
+.insight-question ul{
+  margin:0;
+  padding-left:18px;
+  font-size:13px;
+  line-height:1.6;
+}
+.insight-question ul li b{font-weight:700;}
+.insight-question .empty{
+  font-size:12.5px;
+  color:var(--muted);
+  font-style:italic;
+}
+.summary-textarea-wrap{
+  margin-top:16px;
+}
+.summary-textarea-wrap textarea{
+  width:100%;
+  min-height:260px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  line-height:1.5;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px;
+  resize:vertical;
+  background:#F7F7F7;
+  color:#333;
+}
+.summary-copy-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+.summary-copy-row .copied-msg{
+  font-size:12px;
+  color:#00A868;
+  font-weight:600;
+  opacity:0;
+  transition:opacity .2s;
+}
+.summary-copy-row .copied-msg.show{opacity:1;}
+.summary-empty-state{
+  font-size:15px;
+  color:var(--muted);
+}
+
 @media print{
   html, body, *{
     -webkit-print-color-adjust:exact !important;
@@ -443,6 +636,7 @@ h1.doc-title{
 
 <div class="toolbar no-print">
   <button class="primary" onclick="addParticipant()">+ Nuevo entrevistado</button>
+  <button onclick="generateSummary()">Generar resumen</button>
   <button onclick="window.print()">Exportar a PDF</button>
   <div class="spacer"></div>
   <small>Edita el título y las secciones de la primera hoja para armar la plantilla. "+ Nuevo entrevistado" clona esa estructura en blanco para cada persona evaluada. Los datos se guardan automáticamente en este navegador.</small>
@@ -507,7 +701,7 @@ function makeSection(title="Nueva sección"){
         <button type="button" class="chip" data-value="0.5" onclick="selectChip(this)">Logrado con dificultad</button>
         <button type="button" class="chip" data-value="0" onclick="selectChip(this)">No logrado</button>
       </div>
-      <div class="task-eval-hint no-print">Puedes arrastrar el punto sobre la barra para ajustar el porcentaje exacto.</div>
+      <div class="task-eval-hint no-print">Podés arrastrar el punto sobre la barra para ajustar el porcentaje exacto.</div>
       <div class="criticidad-widget">
         <div class="criticidad-score">
           <div class="criticidad-pct">—</div>
@@ -623,6 +817,9 @@ function updateCriticidadScore(taskEval, pct){
   const levelEl = taskEval.querySelector('.criticidad-level');
   levelEl.textContent = info.label;
   levelEl.style.color = info.color;
+  const marker = taskEval.querySelector('.criticidad-marker');
+  marker.dataset.pct = pct;
+  marker.dataset.touched = '1';
 }
 
 function selectChip(btn){
@@ -642,7 +839,7 @@ function selectChip(btn){
 // Arrastrar el marcador para afinar el porcentaje exacto (ej: logrado pero no perfecto)
 function startMarkerDrag(e){
   const marker = e.target.closest('.criticidad-marker');
-  if(!marker) return;
+  if(!marker || marker.classList.contains('read-only')) return;
   e.preventDefault();
   const track = marker.closest('.criticidad-track');
   const taskEval = marker.closest('.task-eval');
@@ -669,6 +866,281 @@ function startMarkerDrag(e){
 }
 document.addEventListener('mousedown', startMarkerDrag);
 document.addEventListener('touchstart', startMarkerDrag, {passive:false});
+
+// ============================================================
+// RESUMEN FINAL — agrega resultados de todos los entrevistados
+// ============================================================
+
+const COMPLIANCE_BY_LEVEL = {
+  'Nulo':  {cls:'ok',   text:'Cumple'},
+  'Bajo':  {cls:'ok',   text:'Cumple'},
+  'Medio': {cls:'warn', text:'Revisar'},
+  'Alto':  {cls:'bad',  text:'No cumple'}
+};
+const RECOMMENDATION_BY_LEVEL = {
+  'Nulo':  'Sin fricciones detectadas en esta tarea. No se requieren cambios.',
+  'Bajo':  'Fricciones menores y puntuales. Ajustes opcionales, no bloqueantes.',
+  'Medio': 'Fricción moderada — conviene revisar y mejorar esta sección antes de lanzar.',
+  'Alto':  'Problema crítico de usabilidad — se recomienda rediseñar esta sección.'
+};
+const FACE_BY_VALUE = {1:'😞', 2:'🙁', 3:'😐', 4:'🙂', 5:'😄'};
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+function buildStaticGauge(avgPct){
+  const info = getCriticidad(avgPct);
+  const visual = pctToVisual(avgPct);
+  return `
+    <div class="criticidad-score">
+      <div class="criticidad-pct">${Math.round(avgPct)}<span class="unit">%</span></div>
+      <div class="criticidad-sub">Nivel de criticidad</div>
+      <div class="criticidad-level" style="color:${info.color}">${info.label}</div>
+    </div>
+    <div class="criticidad-track-wrap">
+      <div class="criticidad-zones">
+        <span class="zone-label alto" style="left:22%">Alto<small>0–49%</small></span>
+        <span class="zone-label medio" style="left:55%">Medio<small>50–69%</small></span>
+        <span class="zone-label bajo" style="left:77%">Bajo<small>70–99%</small></span>
+        <span class="zone-label nulo" style="left:95%">Nulo<small>100%</small></span>
+      </div>
+      <div class="criticidad-track">
+        <div class="segment seg-alto"></div>
+        <div class="segment seg-medio"></div>
+        <div class="segment seg-bajo"></div>
+        <div class="segment seg-nulo"></div>
+        <div class="criticidad-marker read-only active" style="left:${visual}%"></div>
+      </div>
+    </div>`;
+}
+
+function generateSummary(){
+  const pagesEl = document.getElementById('pages');
+  const existing = pagesEl.querySelector('.summary-page');
+  if(existing) existing.remove();
+
+  const participantPages = Array.from(pagesEl.querySelectorAll(':scope > .page'));
+  const N = participantPages.length;
+  if(N === 0){ alert('No hay hojas de entrevistados para resumir.'); return; }
+
+  // --- 1. Recolectar tareas (secciones con task-eval) ---
+  const taskMap = {}; // title -> { order, pctValues:[], questions: [{pregunta, observations:[{name,text}]}] }
+  let taskOrder = 0;
+
+  // --- 2. Recolectar encuesta CSAT (por índice de fila) ---
+  const surveyMap = {}; // index -> { question, left, right, values:[] }
+
+  participantPages.forEach(page => {
+    const nameEl = page.querySelector('.profile-field');
+    const name = (nameEl && nameEl.textContent.trim()) ? nameEl.textContent.trim() : 'Entrevistado sin nombre';
+
+    // Tareas
+    page.querySelectorAll('.section').forEach(section => {
+      const taskEval = section.querySelector('.task-eval');
+      if(!taskEval) return; // no es una sección de tarea (ej: encuesta)
+      const titleEl = section.querySelector('.section-title');
+      const title = titleEl ? titleEl.textContent.trim() : 'Sección sin título';
+      if(!taskMap[title]) taskMap[title] = { order: taskOrder++, pctValues: [], questions: [] };
+      const t = taskMap[title];
+
+      const marker = taskEval.querySelector('.criticidad-marker');
+      if(marker && marker.dataset.touched === '1'){
+        t.pctValues.push(parseFloat(marker.dataset.pct));
+      }
+
+      section.querySelectorAll('.qa-row').forEach((row, qi) => {
+        const preguntaEl = row.querySelector('.pregunta');
+        const obsEl = row.querySelector('.observacion');
+        const pregunta = preguntaEl ? preguntaEl.textContent.trim() : '';
+        const obs = obsEl ? obsEl.textContent.trim() : '';
+        if(!t.questions[qi]) t.questions[qi] = { pregunta: pregunta || ('Pregunta ' + (qi+1)), observations: [] };
+        if(obs) t.questions[qi].observations.push({ name, text: obs });
+      });
+    });
+
+    // Encuesta CSAT
+    page.querySelectorAll('.survey-row').forEach((row, si) => {
+      const qEl = row.querySelector('.survey-question');
+      const leftEl = row.querySelector('.face-labels-edit .left');
+      const rightEl = row.querySelector('.face-labels-edit .right');
+      const selected = row.querySelector('.face-btn.selected');
+      if(!surveyMap[si]) surveyMap[si] = {
+        question: qEl ? qEl.textContent.trim() : ('Pregunta ' + (si+1)),
+        left: leftEl ? leftEl.textContent.trim() : '',
+        right: rightEl ? rightEl.textContent.trim() : '',
+        values: []
+      };
+      if(selected) surveyMap[si].values.push(parseFloat(selected.dataset.value));
+    });
+  });
+
+  const taskList = Object.keys(taskMap)
+    .map(title => ({ title, ...taskMap[title] }))
+    .sort((a,b) => a.order - b.order);
+
+  const tasksWithData = taskList.filter(t => t.pctValues.length > 0);
+  const taskAverages = tasksWithData.map(t => ({
+    title: t.title,
+    avg: t.pctValues.reduce((a,b)=>a+b,0) / t.pctValues.length,
+    n: t.pctValues.length
+  }));
+
+  const surveyList = Object.keys(surveyMap).map(k => surveyMap[k]);
+  const surveyWithData = surveyList.filter(s => s.values.length > 0)
+    .map(s => ({ ...s, avg: s.values.reduce((a,b)=>a+b,0)/s.values.length }));
+
+  // --- 3. Construir el resumen ejecutivo (basado en reglas, no en interpretación de texto libre) ---
+  let execHtml = '';
+  let overallPct = null, overallInfo = null;
+
+  if(taskAverages.length === 0){
+    execHtml = '<p>Todavía no hay tareas evaluadas (nadie seleccionó "Logrado / Logrado con dificultad / No logrado" ni movió el punto de criticidad en ninguna hoja). Evalúa al menos una tarea para generar el resumen ejecutivo.</p>';
+  } else {
+    overallPct = taskAverages.reduce((a,b)=>a+b.avg,0) / taskAverages.length;
+    overallInfo = getCriticidad(overallPct);
+
+    const byLevel = {Nulo:0, Bajo:0, Medio:0, Alto:0};
+    taskAverages.forEach(t => byLevel[getCriticidad(t.avg).label]++);
+
+    const sorted = [...taskAverages].sort((a,b)=>a.avg-b.avg);
+    const weakest = sorted[0];
+    const strongest = sorted[sorted.length-1];
+
+    const verdict = (overallInfo.label === 'Alto' || overallInfo.label === 'Medio')
+      ? 'En conjunto, el diseño <b>presenta problemas de usabilidad que conviene resolver</b> antes de avanzar.'
+      : 'En conjunto, el diseño <b>cumple razonablemente</b> con los criterios de usabilidad evaluados.';
+
+    execHtml += `<p>Se analizaron <b>${N} entrevistado${N===1?'':'s'}</b> sobre <b>${taskAverages.length} tarea${taskAverages.length===1?'':'s'}</b> evaluada${taskAverages.length===1?'':'s'}. El nivel de criticidad promedio general es <b style="color:${overallInfo.color}">${overallInfo.label} (${Math.round(overallPct)}%)</b>.</p>`;
+    execHtml += `<p>Distribución de tareas por nivel: `;
+    execHtml += ['Nulo','Bajo','Medio','Alto'].filter(l=>byLevel[l]>0).map(l=>`${byLevel[l]} en ${l}`).join(' · ');
+    execHtml += `.</p>`;
+    if(weakest && strongest && weakest.title !== strongest.title){
+      execHtml += `<p>La tarea con <b>mayor fricción</b> fue "<b>${escapeHtml(weakest.title)}</b>" (${Math.round(weakest.avg)}% · ${getCriticidad(weakest.avg).label}). La de <b>mejor desempeño</b> fue "<b>${escapeHtml(strongest.title)}</b>" (${Math.round(strongest.avg)}% · ${getCriticidad(strongest.avg).label}).</p>`;
+    }
+    if(surveyWithData.length){
+      const csatOverall = surveyWithData.reduce((a,b)=>a+b.avg,0)/surveyWithData.length;
+      execHtml += `<p>La encuesta de satisfacción promedió <b>${csatOverall.toFixed(1)}/5</b> ${FACE_BY_VALUE[Math.round(Math.min(5,Math.max(1,csatOverall)))]}.</p>`;
+    }
+    execHtml += `<p>${verdict}</p>`;
+  }
+
+  // --- 4. Construir HTML de tareas ---
+  let tasksHtml = '';
+  taskList.forEach(t => {
+    if(t.pctValues.length === 0){
+      tasksHtml += `
+        <div class="task-summary">
+          <div class="task-summary-head"><span class="title">${escapeHtml(t.title)}</span></div>
+          <p class="empty-note">Ningún entrevistado evaluó esta tarea todavía.</p>
+        </div>`;
+      return;
+    }
+    const avg = t.pctValues.reduce((a,b)=>a+b,0) / t.pctValues.length;
+    const info = getCriticidad(avg);
+    const comp = COMPLIANCE_BY_LEVEL[info.label];
+    const obsCount = t.questions.reduce((a,q)=>a + q.observations.length, 0);
+
+    let obsHtml = '';
+    t.questions.forEach(q => {
+      obsHtml += `<div class="obs-item"><b>${escapeHtml(q.pregunta)}</b>`;
+      if(q.observations.length === 0){
+        obsHtml += `<div class="empty-note" style="padding:2px 0;">Sin observaciones</div>`;
+      } else {
+        q.observations.forEach(o => {
+          obsHtml += `<div><span>${escapeHtml(o.name)}:</span> ${escapeHtml(o.text)}</div>`;
+        });
+      }
+      obsHtml += `</div>`;
+    });
+
+    tasksHtml += `
+      <div class="task-summary">
+        <div class="task-summary-head">
+          <span class="title">${escapeHtml(t.title)}</span>
+          <span class="compliance-chip ${comp.cls}">${comp.text}</span>
+        </div>
+        <div class="n-count">${t.pctValues.length}/${N} entrevistados evaluaron esta tarea</div>
+        <div class="criticidad-widget">${buildStaticGauge(avg)}</div>
+        <div class="recommendation">${RECOMMENDATION_BY_LEVEL[info.label]}</div>
+        <details class="obs-details"><summary>Ver observaciones (${obsCount})</summary>
+          <div class="obs-list">${obsHtml}</div>
+        </details>
+      </div>`;
+  });
+
+  // --- 5. Construir HTML de encuesta CSAT ---
+  let csatHtml = '';
+  if(surveyList.length === 0){
+    csatHtml = '<p class="empty-note">No hay preguntas de encuesta configuradas.</p>';
+  } else {
+    surveyList.forEach(s => {
+      if(s.values.length === 0){
+        csatHtml += `
+          <div class="csat-summary-row">
+            <div class="meta"><div class="q">${escapeHtml(s.question)}</div><div class="labels">${escapeHtml(s.left)} — ${escapeHtml(s.right)}</div></div>
+            <div class="empty-note">Sin respuestas</div>
+          </div>`;
+        return;
+      }
+      const avg = s.values.reduce((a,b)=>a+b,0) / s.values.length;
+      const faceVal = Math.round(Math.min(5, Math.max(1, avg)));
+      csatHtml += `
+        <div class="csat-summary-row">
+          <div class="avg-face">${FACE_BY_VALUE[faceVal]}</div>
+          <div class="meta">
+            <div class="q">${escapeHtml(s.question)}</div>
+            <div class="labels">${escapeHtml(s.left)} — ${escapeHtml(s.right)}</div>
+          </div>
+          <div class="avg-num">${avg.toFixed(1)}/5</div>
+        </div>`;
+    });
+  }
+
+  // --- 6. Stats rápidas ---
+  const csatOverallForStat = surveyWithData.length ? (surveyWithData.reduce((a,b)=>a+b.avg,0)/surveyWithData.length).toFixed(1) : '—';
+  const statsHtml = `
+    <div class="exec-stats">
+      <div class="exec-stat"><div class="num">${N}</div><div class="lbl">Entrevistados</div></div>
+      <div class="exec-stat"><div class="num">${overallPct!==null ? Math.round(overallPct)+'%' : '—'}</div><div class="lbl">Éxito promedio</div></div>
+      <div class="exec-stat"><div class="num" style="color:${overallInfo?overallInfo.color:'inherit'}">${overallInfo?overallInfo.label:'—'}</div><div class="lbl">Criticidad global</div></div>
+      <div class="exec-stat"><div class="num">${csatOverallForStat}${csatOverallForStat!=='—'?'/5':''}</div><div class="lbl">CSAT promedio</div></div>
+    </div>`;
+
+  const fecha = new Date().toLocaleDateString('es-CL', {day:'numeric', month:'long', year:'numeric'});
+
+  // --- 7. Ensamblar la hoja de resumen ---
+  const page = document.createElement('div');
+  page.className = 'page summary-page';
+  page.innerHTML = `
+    <div class="page-toolbar no-print">
+      <button class="ghost" onclick="removePage(this)" title="Eliminar hoja">✕</button>
+    </div>
+    <h1 class="doc-title">Resumen de resultados</h1>
+    <div class="summary-meta">Generado el ${fecha} · ${N} entrevistado${N===1?'':'s'}</div>
+
+    ${statsHtml}
+
+    <div class="section">
+      <div class="section-head"><div class="section-title">Resumen ejecutivo</div></div>
+      <div class="exec-summary">${execHtml}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div class="section-title">Nivel de criticidad promedio por tarea</div></div>
+      ${tasksHtml || '<p class="empty-note">No se encontraron tareas evaluables.</p>'}
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div class="section-title">Encuesta de satisfacción — promedio</div></div>
+      ${csatHtml}
+    </div>
+  `;
+  pagesEl.appendChild(page);
+  page.scrollIntoView({behavior:'smooth', block:'start'});
+}
 
 function addSurveyQuestion(btn){
   const container = btn.closest('.page').querySelector('.survey-list');
@@ -742,7 +1214,7 @@ function makeParticipantPage(base){
     page.querySelectorAll('.chip').forEach(el=>el.classList.remove('selected'));
     page.querySelectorAll('.criticidad-pct').forEach(el=>el.textContent='—');
     page.querySelectorAll('.criticidad-level').forEach(el=>{el.textContent=''; el.style.color='';});
-    page.querySelectorAll('.criticidad-marker').forEach(el=>{el.classList.remove('active'); el.style.left='0%';});
+    page.querySelectorAll('.criticidad-marker').forEach(el=>{el.classList.remove('active'); el.style.left='0%'; delete el.dataset.pct; delete el.dataset.touched;});
   }
   return page;
 }
