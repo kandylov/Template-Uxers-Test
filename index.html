@@ -63,12 +63,13 @@ button.small{padding:5px 10px; font-size:12px;}
 .link-btn{
   background:none;
   border:none;
-  padding:2px 0;
-  color:var(--accent);
+  padding:2px 6px;
+  color:var(--ink);
   font-weight:600;
   font-size:13px;
+  border-radius:6px;
 }
-.link-btn:hover{background:none; border-color:transparent; text-decoration:underline;}
+.link-btn:hover{background:#F0F0F0; border-color:transparent; text-decoration:none;}
 .add-row button{border-radius:999px;}
 
 .page{
@@ -204,6 +205,129 @@ h1.doc-title{
 }
 .qa-row .row-actions{padding-top:2px;}
 
+.task-eval{
+  margin-top:6px;
+  margin-bottom:18px;
+  padding-top:16px;
+  border-top:1px dashed var(--border);
+}
+.task-eval-label{
+  font-weight:700;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:var(--ink);
+  margin-bottom:10px;
+}
+.task-chips{
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+.task-eval-hint{
+  font-size:11px;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.chip{
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:999px;
+  padding:6px 14px;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--ink);
+}
+.chip:hover{background:#F7F7F7; border-color:var(--ink);}
+.chip.selected{background:var(--ink); border-color:var(--ink); font-weight:600; color:#fff;}
+.criticidad-widget{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  background:#F7F7F7;
+  border-radius:10px;
+  padding:16px 20px;
+}
+.criticidad-score{
+  flex-shrink:0;
+  min-width:64px;
+}
+.criticidad-pct{
+  font-size:30px;
+  font-weight:800;
+  line-height:1;
+  color:var(--ink);
+}
+.criticidad-pct .unit{
+  font-size:16px;
+  font-weight:700;
+  margin-left:1px;
+}
+.criticidad-sub{
+  font-size:10.5px;
+  color:var(--muted);
+  margin-top:4px;
+}
+.criticidad-level{
+  font-size:11.5px;
+  font-weight:700;
+  margin-top:2px;
+}
+.criticidad-track-wrap{
+  flex:1;
+  min-width:0;
+}
+.criticidad-zones{
+  position:relative;
+  height:26px;
+}
+.zone-label{
+  position:absolute;
+  top:0;
+  transform:translateX(-50%);
+  font-size:10.5px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.zone-label small{
+  font-weight:500;
+  margin-left:3px;
+  font-size:9.5px;
+  color:var(--muted);
+}
+.zone-label.alto{color:#FC2D55;}
+.zone-label.medio{color:#FFA200;}
+.zone-label.bajo{color:#1F31F6;}
+.zone-label.nulo{color:#00D084;}
+.criticidad-track{
+  position:relative;
+  height:8px;
+  border-radius:4px;
+  display:flex;
+  overflow:visible;
+}
+.seg-alto{width:45%; background:#FC2D55; border-top-left-radius:4px; border-bottom-left-radius:4px;}
+.seg-medio{width:20%; background:#FFA200;}
+.seg-bajo{width:25%; background:#1F31F6;}
+.seg-nulo{width:10%; background:#00D084; border-top-right-radius:4px; border-bottom-right-radius:4px;}
+.criticidad-marker{
+  position:absolute;
+  top:50%;
+  left:0%;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:#fff;
+  border:3px solid var(--ink);
+  transform:translate(-50%,-50%);
+  transition:left .25s;
+  box-shadow:0 1px 3px rgba(20,30,60,.2);
+  cursor:grab;
+  touch-action:none;
+}
+.criticidad-marker:active{cursor:grabbing; transition:none;}
+
 .add-row{
   margin-top:4px;
   margin-bottom:32px;
@@ -321,7 +445,8 @@ h1.doc-title{
   <button class="primary" onclick="addParticipant()">+ Nuevo entrevistado</button>
   <button onclick="window.print()">Exportar a PDF</button>
   <div class="spacer"></div>
-  <small>Edita el título y las secciones de la primera hoja para armar la plantilla. "+ Nuevo entrevistado" clona esa estructura en blanco para cada persona evaluada.</small>
+  <small>Edita el título y las secciones de la primera hoja para armar la plantilla. "+ Nuevo entrevistado" clona esa estructura en blanco para cada persona evaluada. Los datos se guardan automáticamente en este navegador.</small>
+  <button class="ghost" onclick="clearSavedState()">Borrar todo</button>
 </div>
 
 <div id="pages"></div>
@@ -375,6 +500,37 @@ function makeSection(title="Nueva sección"){
 </svg></button>
     </div>
     <div class="qa-list"></div>
+    <div class="task-eval">
+      <div class="task-eval-label">Nivel de logro de la tarea</div>
+      <div class="task-chips">
+        <button type="button" class="chip" data-value="1" onclick="selectChip(this)">Logrado</button>
+        <button type="button" class="chip" data-value="0.5" onclick="selectChip(this)">Logrado con dificultad</button>
+        <button type="button" class="chip" data-value="0" onclick="selectChip(this)">No logrado</button>
+      </div>
+      <div class="task-eval-hint no-print">Podés arrastrar el punto sobre la barra para ajustar el porcentaje exacto.</div>
+      <div class="criticidad-widget">
+        <div class="criticidad-score">
+          <div class="criticidad-pct">—</div>
+          <div class="criticidad-sub">Nivel de criticidad</div>
+          <div class="criticidad-level"></div>
+        </div>
+        <div class="criticidad-track-wrap">
+          <div class="criticidad-zones">
+            <span class="zone-label alto" style="left:22%">Alto<small>0–49%</small></span>
+            <span class="zone-label medio" style="left:55%">Medio<small>50–69%</small></span>
+            <span class="zone-label bajo" style="left:77%">Bajo<small>70–99%</small></span>
+            <span class="zone-label nulo" style="left:95%">Nulo<small>100%</small></span>
+          </div>
+          <div class="criticidad-track">
+            <div class="segment seg-alto"></div>
+            <div class="segment seg-medio"></div>
+            <div class="segment seg-bajo"></div>
+            <div class="segment seg-nulo"></div>
+            <div class="criticidad-marker"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="section-footer-actions no-print">
       <button class="link-btn" onclick="addQuestion(this)">+ Agregar pregunta</button>
     </div>`;
@@ -429,6 +585,90 @@ function selectFace(btn){
   group.querySelectorAll('.face-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
 }
+
+function getCriticidad(pct){
+  if(pct >= 100) return {label:'Nulo',  color:'#00D084'};
+  if(pct >= 70)  return {label:'Bajo',  color:'#1F31F6'};
+  if(pct >= 50)  return {label:'Medio', color:'#FFA200'};
+  return {label:'Alto', color:'#FC2D55'};
+}
+
+// Convierte una posición visual en la barra (0-100%) al porcentaje real,
+// porque las zonas no tienen el mismo ancho que su rango real.
+const CRIT_POINTS = [[0,0],[45,49],[65,69],[90,99],[100,100]];
+function visualToPct(visual){
+  for(let i=0;i<CRIT_POINTS.length-1;i++){
+    const [v0,p0]=CRIT_POINTS[i], [v1,p1]=CRIT_POINTS[i+1];
+    if(visual>=v0 && visual<=v1){
+      const t=(visual-v0)/(v1-v0);
+      return p0 + t*(p1-p0);
+    }
+  }
+  return visual;
+}
+function pctToVisual(pct){
+  for(let i=0;i<CRIT_POINTS.length-1;i++){
+    const [v0,p0]=CRIT_POINTS[i], [v1,p1]=CRIT_POINTS[i+1];
+    if(pct>=p0 && pct<=p1){
+      const t=(pct-p0)/(p1-p0);
+      return v0 + t*(v1-v0);
+    }
+  }
+  return pct;
+}
+
+function updateCriticidadScore(taskEval, pct){
+  const info = getCriticidad(pct);
+  taskEval.querySelector('.criticidad-pct').innerHTML = Math.round(pct) + '<span class="unit">%</span>';
+  const levelEl = taskEval.querySelector('.criticidad-level');
+  levelEl.textContent = info.label;
+  levelEl.style.color = info.color;
+}
+
+function selectChip(btn){
+  const group = btn.closest('.task-chips');
+  group.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  const taskEval = btn.closest('.task-eval');
+  const pct = parseFloat(btn.dataset.value) * 100;
+  updateCriticidadScore(taskEval, pct);
+
+  const marker = taskEval.querySelector('.criticidad-marker');
+  marker.style.left = pctToVisual(pct) + '%';
+  marker.classList.add('active');
+}
+
+// Arrastrar el marcador para afinar el porcentaje exacto (ej: logrado pero no perfecto)
+function startMarkerDrag(e){
+  const marker = e.target.closest('.criticidad-marker');
+  if(!marker) return;
+  e.preventDefault();
+  const track = marker.closest('.criticidad-track');
+  const taskEval = marker.closest('.task-eval');
+
+  function onMove(ev){
+    const clientX = ev.touches ? ev.touches[0].clientX : ev.clientX;
+    const rect = track.getBoundingClientRect();
+    let visual = ((clientX - rect.left) / rect.width) * 100;
+    visual = Math.max(0, Math.min(100, visual));
+    marker.style.left = visual + '%';
+    updateCriticidadScore(taskEval, visualToPct(visual));
+  }
+  function onUp(){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchend', onUp);
+    scheduleSave();
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onMove, {passive:false});
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchend', onUp);
+}
+document.addEventListener('mousedown', startMarkerDrag);
+document.addEventListener('touchstart', startMarkerDrag, {passive:false});
 
 function addSurveyQuestion(btn){
   const container = btn.closest('.page').querySelector('.survey-list');
@@ -499,6 +739,10 @@ function makeParticipantPage(base){
     if(genderSelect) genderSelect.selectedIndex = 0;
     page.querySelectorAll('.obs-field').forEach(el=>el.innerHTML='');
     page.querySelectorAll('.face-btn').forEach(el=>el.classList.remove('selected'));
+    page.querySelectorAll('.chip').forEach(el=>el.classList.remove('selected'));
+    page.querySelectorAll('.criticidad-pct').forEach(el=>el.textContent='—');
+    page.querySelectorAll('.criticidad-level').forEach(el=>{el.textContent=''; el.style.color='';});
+    page.querySelectorAll('.criticidad-marker').forEach(el=>{el.classList.remove('active'); el.style.left='0%';});
   }
   return page;
 }
@@ -520,8 +764,56 @@ function removePage(btn){
   btn.closest('.page').remove();
 }
 
-// inicializar con la hoja plantilla
-document.getElementById('pages').appendChild(makeParticipantPage());
+// --- Autoguardado en este navegador (no envía datos a ningún servidor) ---
+const STORAGE_KEY = 'bajada-testeo-autosave-v1';
+let saveTimeout = null;
+
+function scheduleSave(){
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(saveState, 400);
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, document.getElementById('pages').innerHTML);
+  }catch(e){ /* si falla, simplemente no se guarda */ }
+}
+
+function clearSavedState(){
+  if(confirm('¿Borrar todo lo escrito y empezar de cero? Esta acción no se puede deshacer.')){
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+
+// Cualquier cambio en el contenido (texto, secciones, caritas, etc.) dispara el guardado
+new MutationObserver(scheduleSave).observe(document.getElementById('pages'), {
+  childList:true, subtree:true, characterData:true, attributes:true
+});
+
+// Los <select> no reflejan la opción elegida en el HTML por sí solos:
+// sincronizamos el atributo "selected" para que el autoguardado los capture bien.
+document.addEventListener('change', function(e){
+  if(e.target.tagName === 'SELECT'){
+    Array.from(e.target.options).forEach(opt => opt.selected = (opt.value === e.target.value));
+    scheduleSave();
+  }
+});
+
+// también guardar ante cualquier tecla dentro de campos editables
+document.addEventListener('input', scheduleSave);
+
+// --- Inicializar: restaurar si hay datos guardados, o crear la hoja plantilla ---
+(function init(){
+  const pagesEl = document.getElementById('pages');
+  let saved = null;
+  try{ saved = localStorage.getItem(STORAGE_KEY); }catch(e){}
+  if(saved && saved.trim()){
+    pagesEl.innerHTML = saved;
+  } else {
+    pagesEl.appendChild(makeParticipantPage());
+  }
+})();
 </script>
 
 </body>
