@@ -164,11 +164,15 @@ h1.doc-title{
 }
 .drag-handle{
   cursor:grab;
-  font-size:18px;
+  font-size:20px;
   line-height:1;
   color:var(--muted);
-  padding:2px 4px;
+  padding:6px 8px;
+  margin:-6px 2px -6px -8px;
   user-select:none;
+  -webkit-user-select:none;
+  -webkit-user-drag:none;
+  -webkit-touch-callout:none;
   flex-shrink:0;
   touch-action:none;
 }
@@ -216,6 +220,7 @@ h1.doc-title{
   font-size:16px;
   font-weight:700;
   flex:1;
+  cursor:text;
 }
 .section-delete{
   width:26px;
@@ -766,7 +771,7 @@ function makeSection(title="Nueva sección"){
   const teUid = uid();
   sec.innerHTML = `
     <div class="section-head">
-      <span class="drag-handle no-print" title="Arrastrar para reordenar">⠿</span>
+      <span class="drag-handle no-print" draggable="false" title="Arrastrar para reordenar">⠿</span>
       <div class="section-title" contenteditable="true">${title}</div>
       <button class="section-delete no-print" onclick="confirmDeleteSection(this)" title="Eliminar sección"><svg width="26" height="26" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="0.5" y="0.5" width="29" height="29" rx="14.5" fill="#FFFFFF" stroke="#DCE1EC"/>
@@ -1687,7 +1692,7 @@ function loadRealTestData(){
   if(saved && saved.trim()){
     pagesEl.innerHTML = saved;
   } else {
-    loadRealTestData();
+    pagesEl.appendChild(makeParticipantPage());
   }
 })();
 </script>
