@@ -715,7 +715,7 @@ h1.doc-title{
 
 <div class="toolbar no-print">
   <button class="primary" onclick="addParticipant()">+ Nuevo entrevistado</button>
-  <button onclick="confirmLoadRealTestData()">Cargar datos de prueba</button>
+  <button onclick="confirmLoadRealTestData()">Cargar respuestas</button>
   <button onclick="generateSummary()">Generar resumen</button>
   <button onclick="window.print()">Exportar a PDF</button>
   <div class="spacer"></div>
@@ -1494,10 +1494,12 @@ function initSectionDrag(){
 initSectionDrag();
 
 // --- Autoguardado en este navegador (no envía datos a ningún servidor) ---
-const STORAGE_KEY = 'bajada-testeo-autosave-v2';
+const STORAGE_KEY = 'bajada-testeo-autosave-v3';
 let saveTimeout = null;
+let saveSuspended = false;
 
 function scheduleSave(){
+  if(saveSuspended) return;
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(saveState, 400);
 }
@@ -1656,119 +1658,81 @@ const REAL_PARTICIPANTS = [
   }
 ];
 
-function buildRealParticipantPage(data){
-  const page = document.createElement('div');
-  page.className = 'page';
-  page.innerHTML = `
-    <div class="page-toolbar no-print">
-      <button class="ghost" onclick="removePage(this)" title="Eliminar hoja">✕</button>
-    </div>
-    <h1 class="doc-title" contenteditable="true" data-placeholder="Título del testeo">Test de usabilidad — Home Isapre Esencial</h1>
-    <div class="doc-sub" contenteditable="true" data-placeholder="Subtítulo u objetivo del testeo (opcional)">Objetivo: evaluar comprensión de beneficios, planes, prestadores y cálculo de plan en la home del sitio público</div>
+function getSectionByTitle(page, title){
+  return Array.from(page.querySelectorAll('.sections .section')).find(section => {
+    const el = section.querySelector('.section-title');
+    return el && el.textContent.trim() === title;
+  });
+}
 
-    <div class="profile">
-      <div class="field">
-        <label>Nombre</label>
-        <div class="profile-field" contenteditable="true" data-placeholder="Nombre del entrevistado">${escapeHtml(data.nombre)}</div>
-      </div>
-      <div class="field">
-        <label>Edad</label>
-        <div class="profile-field" contenteditable="true" data-placeholder="Edad">${data.edad || '&nbsp;'}</div>
-      </div>
-      <div class="field">
-        <label>Grupo familiar</label>
-        <div class="profile-field" contenteditable="true" data-placeholder="Ej: pareja, 2 hijos">${escapeHtml(data.grupo)}</div>
-      </div>
-      <div class="field">
-        <label>Género</label>
-        <select class="profile-field profile-gender">
-          <option value="" disabled>Seleccionar</option>
-          <option value="Femenino">Femenino</option>
-          <option value="Masculino">Masculino</option>
-        </select>
-      </div>
-    </div>
+// Rellena perfil, observaciones, encuesta y nivel de logro sobre una hoja
+// que ya tiene la estructura de la plantilla (preguntas intactas).
+function fillParticipantPage(page, data){
+  const profileFields = page.querySelectorAll('.profile .field');
+  if(profileFields[0]) profileFields[0].querySelector('.profile-field').textContent = data.nombre || '';
+  if(profileFields[1]) profileFields[1].querySelector('.profile-field').textContent = data.edad || '';
+  if(profileFields[2]) profileFields[2].querySelector('.profile-field').textContent = data.grupo || '';
 
-    <div class="sections"></div>
-
-    <div class="add-row no-print">
-      <button onclick="addSection(this)">+ Agregar sección</button>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div class="section-title" contenteditable="true">Encuesta de satisfacción</div>
-      </div>
-      <div class="survey-list"></div>
-      <div class="section-footer-actions no-print">
-        <button class="link-btn" onclick="addSurveyQuestion(this)">+ Agregar pregunta de encuesta</button>
-      </div>
-    </div>
-  `;
-
-  // género
   const genderSelect = page.querySelector('.profile-gender');
-  genderSelect.value = data.genero;
+  if(genderSelect && data.genero){
+    genderSelect.value = data.genero;
+    Array.from(genderSelect.options).forEach(opt => {
+      opt.selected = opt.value === data.genero;
+    });
+  }
 
-  // sección intro (sin nivel de criticidad, es solo contexto)
-  const introSection = makeSectionWithQuestions(
-    'Preguntas de introducción',
-    INTRO_QUESTIONS.map((q, i) => ({ q, a: data.intro[i] || '' })),
-    false
-  );
+  const introSection = getSectionByTitle(page, 'Preguntas de introducción');
+  if(introSection){
+    introSection.querySelectorAll('.qa-row').forEach((row, i) => {
+      const obs = row.querySelector('.observacion');
+      if(obs) obs.textContent = data.intro[i] || '';
+    });
+  }
 
-  // sección home (con nivel de criticidad)
-  const homeSection = makeSectionWithQuestions(
-    'Observar la home',
-    HOME_QUESTIONS.map((q, i) => ({ q, a: data.home[i] || '' })),
-    true
-  );
+  const homeSection = getSectionByTitle(page, 'Observar la home');
+  if(homeSection){
+    homeSection.querySelectorAll('.qa-row').forEach((row, i) => {
+      const obs = row.querySelector('.observacion');
+      if(obs) obs.textContent = data.home[i] || '';
+    });
+    const chipBtn = homeSection.querySelector(`.chip[data-value="${data.taskLevel}"]`);
+    if(chipBtn) selectChip(chipBtn);
+  }
 
-  const sectionsEl = page.querySelector('.sections');
-  sectionsEl.appendChild(introSection);
-  sectionsEl.appendChild(homeSection);
-
-  // encuesta CSAT
-  const surveyList = page.querySelector('.survey-list');
-  SURVEY_QUESTIONS.forEach((sq, i)=>{
-    surveyList.appendChild(makeSurveyRow(sq.q, sq.left, sq.right));
+  page.querySelectorAll('.survey-row').forEach((row, i) => {
+    const val = data.survey[i];
+    if(val !== null && val !== undefined){
+      const faceBtn = row.querySelector(`.face-btn[data-value="${val}"]`);
+      if(faceBtn) selectFace(faceBtn);
+    }
   });
 
-  return { page, introTaskEval: null, homeSection };
+  return { page, homeSection };
 }
 
 function loadRealTestData(){
+  saveSuspended = true;
   const pagesEl = document.getElementById('pages');
   pagesEl.innerHTML = '';
 
-  REAL_PARTICIPANTS.forEach(data=>{
-    const { page, homeSection } = buildRealParticipantPage(data);
+  let template = null;
+  REAL_PARTICIPANTS.forEach(data => {
+    const page = template ? makeParticipantPage(template) : makeParticipantPage();
+    if(!template) template = page;
+    fillParticipantPage(page, data);
     pagesEl.appendChild(page);
-
-    // Seleccionar el chip de nivel de logro en la sección "Observar la home"
-    const chipBtn = homeSection.querySelector(`.chip[data-value="${data.taskLevel}"]`);
-    if(chipBtn) selectChip(chipBtn);
-
-    // Seleccionar las caritas de la encuesta
-    const rows = page.querySelectorAll('.survey-row');
-    rows.forEach((row, i)=>{
-      const val = data.survey[i];
-      if(val !== null && val !== undefined){
-        const faceBtn = row.querySelector(`.face-btn[data-value="${val}"]`);
-        if(faceBtn) selectFace(faceBtn);
-      }
-    });
   });
 
+  saveSuspended = false;
   scheduleSave();
 }
 
 function confirmLoadRealTestData(){
   openConfirmModal(
-    '¿Cargar datos de prueba?',
-    'Se reemplazará todo lo que hay en pantalla por las 4 entrevistas precargadas (Patricia, Stephani, Adela y Vivian). Podrás seguir editando después.',
+    '¿Cargar respuestas de las entrevistas?',
+    'Se mantendrá la plantilla con sus secciones y preguntas. Solo se rellenarán las observaciones, perfiles y encuestas de Patricia, Stephani, Adela y Vivian.',
     () => loadRealTestData(),
-    'Cargar'
+    'Cargar respuestas'
   );
 }
 
@@ -1779,8 +1743,7 @@ function confirmLoadRealTestData(){
   if(saved && saved.trim()){
     pagesEl.innerHTML = saved;
   } else {
-    // Sin datos guardados: cargar las 4 entrevistas (Patricia, Stephani, Adela, Vivian)
-    loadRealTestData();
+    pagesEl.appendChild(makeParticipantPage());
   }
 })();
 </script>
