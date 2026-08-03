@@ -162,6 +162,56 @@ h1.doc-title{
   padding-bottom:6px;
   margin-bottom:14px;
 }
+.drag-handle{
+  cursor:grab;
+  font-size:18px;
+  line-height:1;
+  color:var(--muted);
+  padding:2px 4px;
+  user-select:none;
+  flex-shrink:0;
+  touch-action:none;
+}
+.drag-handle:hover{color:var(--ink);}
+.drag-handle:active{cursor:grabbing;}
+.section.dragging{opacity:.35;}
+.sections .section{transition:transform .05s;}
+
+/* ---------- Modal de confirmación ---------- */
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15,20,30,.45);
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:#fff;
+  border-radius:14px;
+  padding:28px 28px 22px;
+  max-width:360px;
+  width:88%;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.modal-title{font-size:17px; font-weight:700; margin-bottom:8px; color:var(--ink);}
+.modal-text{font-size:13.5px; color:var(--muted); line-height:1.5; margin-bottom:22px;}
+.modal-actions{display:flex; justify-content:flex-end; gap:10px;}
+.modal-btn{
+  border-radius:999px;
+  padding:9px 18px;
+  font-size:13px;
+  font-weight:600;
+  border:1px solid var(--border);
+  background:#fff;
+  cursor:pointer;
+  color:var(--ink);
+}
+.modal-btn.cancel:hover{background:#F7F7F7;}
+.modal-btn.danger{background:#FC2D55; border-color:#FC2D55; color:#fff;}
+.modal-btn.danger:hover{background:#E0264A;}
 .section-title{
   font-size:16px;
   font-weight:700;
@@ -210,7 +260,24 @@ h1.doc-title{
   margin-bottom:18px;
   padding-top:16px;
   border-top:1px dashed var(--border);
+  position:relative;
 }
+.task-eval-close{
+  position:absolute;
+  top:12px;
+  right:0;
+  width:26px;
+  height:26px;
+  border:none;
+  background:none;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:.7;
+}
+.task-eval-close:hover{opacity:1;}
+.task-eval-close svg{display:block; width:22px; height:22px;}
 .task-eval-label{
   font-weight:700;
   font-size:12px;
@@ -645,6 +712,17 @@ h1.doc-title{
 
 <div id="pages"></div>
 
+<div id="confirmModal" class="modal-overlay no-print">
+  <div class="modal-box">
+    <div class="modal-title" id="confirmModalTitle">¿Estás seguro?</div>
+    <div class="modal-text" id="confirmModalText"></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeConfirmModal()">Cancelar</button>
+      <button class="modal-btn danger" onclick="confirmModalAction()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let sectionCounter = 0;
 
@@ -685,23 +763,36 @@ function makeQARow(pregunta="", observacion=""){
 function makeSection(title="Nueva sección"){
   const sec = document.createElement('div');
   sec.className = 'section';
+  const teUid = uid();
   sec.innerHTML = `
     <div class="section-head">
+      <span class="drag-handle no-print" title="Arrastrar para reordenar">⠿</span>
       <div class="section-title" contenteditable="true">${title}</div>
-      <button class="section-delete no-print" onclick="this.closest('.section').remove()" title="Eliminar sección"><svg width="26" height="26" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <button class="section-delete no-print" onclick="confirmDeleteSection(this)" title="Eliminar sección"><svg width="26" height="26" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="0.5" y="0.5" width="29" height="29" rx="14.5" fill="#FFFFFF" stroke="#DCE1EC"/>
 <path d="M15 7.5C15.8502 7.50005 16.6663 7.83735 17.2676 8.43848C17.8688 9.0397 18.2069 9.85581 18.207 10.7061V10.7197H21.4404C21.7292 10.7199 21.9638 10.9543 21.9639 11.2432C21.9639 11.532 21.7293 11.7664 21.4404 11.7666H20.3535V20.9033C20.3534 21.3265 20.1849 21.733 19.8857 22.0322C19.5864 22.3314 19.1801 22.4999 18.7568 22.5H11.2432C10.8198 22.4999 10.4136 22.3315 10.1143 22.0322C9.81494 21.7329 9.64656 21.3266 9.64648 20.9033V11.7666H8.55957C8.27075 11.7664 8.03711 11.532 8.03711 11.2432C8.03717 10.9544 8.27079 10.7199 8.55957 10.7197H11.7939V10.7061C11.7941 9.85581 12.1312 9.0397 12.7324 8.43848C13.3337 7.83734 14.1498 7.50006 15 7.5ZM10.6934 20.9033C10.6934 21.0489 10.7508 21.189 10.8535 21.292C10.9567 21.3951 11.0974 21.453 11.2432 21.4531H18.7568C18.9026 21.4531 19.0424 21.395 19.1455 21.292C19.2485 21.1889 19.3066 21.049 19.3066 20.9033V11.7666H10.6934V20.9033ZM13.3896 13.9424C13.6785 13.9424 13.9129 14.176 13.9131 14.4648V18.7598C13.9129 19.0486 13.6785 19.2832 13.3896 19.2832C13.1009 19.283 12.8664 19.0485 12.8662 18.7598V14.4648C12.8664 14.1761 13.1009 13.9426 13.3896 13.9424ZM16.6094 13.9424C16.8983 13.9424 17.1326 14.176 17.1328 14.4648V18.7598C17.1327 19.0486 16.8983 19.2832 16.6094 19.2832C16.3208 19.2828 16.0871 19.0484 16.0869 18.7598V14.4648C16.0871 14.1762 16.3208 13.9427 16.6094 13.9424ZM15 8.54688C14.4272 8.54693 13.8777 8.77469 13.4727 9.17969C13.0679 9.58462 12.84 10.1335 12.8398 10.7061V10.7197H17.1602V10.7061C17.16 10.1335 16.9322 9.58463 16.5273 9.17969C16.1223 8.77464 15.5728 8.54693 15 8.54688Z" fill="#0F202B"/>
 </svg></button>
     </div>
     <div class="qa-list"></div>
     <div class="task-eval">
+      <button type="button" class="task-eval-close no-print" onclick="confirmDeleteTaskEval(this)" title="Eliminar nivel de criticidad"><svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="30" height="30" rx="15" fill="#F7F7F7"/>
+<g clip-path="url(#clipTE_${teUid})">
+<path d="M9.6967 19.5605L14.2904 14.9669L9.72705 10.4036C9.52272 10.1992 9.52276 9.86792 9.72705 9.66357C9.93139 9.45923 10.2627 9.45923 10.467 9.66357L15.0304 14.2269L19.5633 9.69393C19.7676 9.48958 20.099 9.48958 20.3033 9.69393C20.5076 9.89827 20.5076 10.2296 20.3033 10.4339L15.7703 14.9669L20.3337 19.5302C20.538 19.7345 20.538 20.0658 20.3337 20.2702C20.1293 20.4745 19.798 20.4745 19.5937 20.2702L15.0304 15.7069L10.4367 20.3005C10.2324 20.5049 9.90104 20.5049 9.6967 20.3005C9.49236 20.0962 9.49236 19.7649 9.6967 19.5605Z" fill="#0F202B"/>
+</g>
+<defs>
+<clipPath id="clipTE_${teUid}">
+<rect width="18" height="18" fill="white" transform="translate(6 6)"/>
+</clipPath>
+</defs>
+</svg></button>
       <div class="task-eval-label">Nivel de logro de la tarea</div>
       <div class="task-chips">
         <button type="button" class="chip" data-value="1" onclick="selectChip(this)">Logrado</button>
         <button type="button" class="chip" data-value="0.5" onclick="selectChip(this)">Logrado con dificultad</button>
         <button type="button" class="chip" data-value="0" onclick="selectChip(this)">No logrado</button>
       </div>
-      <div class="task-eval-hint no-print">Podés arrastrar el punto sobre la barra para ajustar el porcentaje exacto.</div>
+      <div class="task-eval-hint no-print">Puedes arrastrar el punto sobre la barra para ajustar el porcentaje exacto.</div>
       <div class="criticidad-widget">
         <div class="criticidad-score">
           <div class="criticidad-pct">—</div>
@@ -1236,6 +1327,87 @@ function removePage(btn){
   btn.closest('.page').remove();
 }
 
+// ---------- Modal de confirmación genérico ----------
+let _pendingConfirmCallback = null;
+
+function openConfirmModal(title, text, callback){
+  document.getElementById('confirmModalTitle').textContent = title;
+  document.getElementById('confirmModalText').textContent = text;
+  _pendingConfirmCallback = callback;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirmModal(){
+  _pendingConfirmCallback = null;
+  document.getElementById('confirmModal').classList.remove('open');
+}
+function confirmModalAction(){
+  if(_pendingConfirmCallback) _pendingConfirmCallback();
+  closeConfirmModal();
+}
+document.getElementById('confirmModal').addEventListener('click', function(e){
+  if(e.target === this) closeConfirmModal();
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeConfirmModal();
+});
+
+function confirmDeleteSection(btn){
+  const section = btn.closest('.section');
+  openConfirmModal(
+    '¿Eliminar esta sección?',
+    'Se van a perder todas sus preguntas y observaciones. Esta acción no se puede deshacer.',
+    () => { section.remove(); scheduleSave(); }
+  );
+}
+
+function confirmDeleteTaskEval(btn){
+  const taskEval = btn.closest('.task-eval');
+  openConfirmModal(
+    '¿Eliminar el nivel de criticidad?',
+    'Se va a quitar la evaluación de logro de tarea (Logrado / Logrado con dificultad / No logrado) de esta sección. Esta acción no se puede deshacer.',
+    () => { taskEval.remove(); scheduleSave(); }
+  );
+}
+
+// ---------- Arrastrar secciones para reordenarlas ----------
+function startSectionDrag(e){
+  const handle = e.target.closest('.drag-handle');
+  if(!handle) return;
+  const section = handle.closest('.section');
+  const container = section.parentElement;
+  if(!container || !container.classList.contains('sections')) return;
+  e.preventDefault();
+  section.classList.add('dragging');
+
+  function onMove(ev){
+    const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+    const siblings = Array.from(container.querySelectorAll('.section:not(.dragging)'));
+    const after = siblings.find(sib => {
+      const rect = sib.getBoundingClientRect();
+      return clientY < rect.top + rect.height / 2;
+    });
+    if(after){
+      container.insertBefore(section, after);
+    } else {
+      container.appendChild(section);
+    }
+  }
+  function onUp(){
+    section.classList.remove('dragging');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchend', onUp);
+    scheduleSave();
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onMove, {passive:false});
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchend', onUp);
+}
+document.addEventListener('mousedown', startSectionDrag);
+document.addEventListener('touchstart', startSectionDrag, {passive:false});
+
 // --- Autoguardado en este navegador (no envía datos a ningún servidor) ---
 const STORAGE_KEY = 'bajada-testeo-autosave-v1';
 let saveTimeout = null;
@@ -1276,6 +1448,238 @@ document.addEventListener('change', function(e){
 document.addEventListener('input', scheduleSave);
 
 // --- Inicializar: restaurar si hay datos guardados, o crear la hoja plantilla ---
+
+// ============================================================
+// DATOS REALES — Test de usabilidad Home Isapre Esencial
+// Generado a partir de las transcripciones de Patricia, Stephani, Adela y Vivian
+// ============================================================
+
+const INTRO_QUESTIONS = [
+  "Cuéntame de tu grupo familiar y tu situación de salud actual (Fonasa/Isapre)",
+  "¿Qué considerarías importante al momento de elegir o cambiar de plan de salud?"
+];
+
+const HOME_QUESTIONS = [
+  "Primera impresión: ¿qué entendiste que ofrece esta página?",
+  "¿Dónde irías a buscar los beneficios que ofrece la Isapre?",
+  "¿Dónde irías a ver los planes de salud disponibles?",
+  "¿Entiendes la diferencia entre \"Cotiza tu plan ideal\" y \"Saber más de este plan\"?",
+  "¿Dónde buscarías las clínicas o prestadores en convenio?",
+  "¿Dónde irías para entender cómo se calcula el precio de un plan?",
+  "¿Te resultó clara la sección de chequeos preventivos?",
+  "¿Qué agregarías, quitarías o moverías de la página?"
+];
+
+const SURVEY_QUESTIONS = [
+  {q:"Facilidad para encontrar la sección de beneficios", left:"Muy difícil", right:"Muy fácil"},
+  {q:"Utilidad de la sección de planes", left:"Nada útil", right:"Muy útil"},
+  {q:"Utilidad de la sección de prestadores / clínicas en convenio", left:"Nada útil", right:"Muy útil"},
+  {q:"Utilidad de la sección de promociones (mascotas, VPH, etc.)", left:"Nada útil", right:"Muy útil"},
+  {q:"Utilidad del bloque educativo (cómo se calcula tu plan)", left:"Nada útil", right:"Muy útil"},
+  {q:"Utilidad de la sección de chequeos preventivos", left:"Nada útil", right:"Muy útil"},
+  {q:"Utilidad general del recorrido completo de la página", left:"Nada útil", right:"Muy útil"}
+];
+
+const REAL_PARTICIPANTS = [
+  {
+    nombre: "Patricia Alfaro Villalobos",
+    edad: "51",
+    grupo: "Esposo (55), hijo (20), hija (19)",
+    genero: "Femenino",
+    taskLevel: 0.5,
+    intro: [
+      "Familia de 4: esposo (55), hijo (20) e hija (19). Actualmente es carga de su esposo en FONASA. Antes estuvo en Isapre cuando trabajaba de forma independiente.",
+      "Históricamente le preocupaban las coberturas y los bonos fijos para procedimientos, sobre todo en etapa fértil. Hoy, en una etapa distinta, le interesaría saber si hay planes para personas con enfermedades preexistentes, coberturas de especialistas y cómo funciona el copago."
+    ],
+    home: [
+      "Entendió que la página presenta los planes y beneficios que ofrece la Isapre, con foco en atraer nuevos afiliados mostrando coberturas, clínicas asociadas y una experiencia con planes que se adaptan a las necesidades del usuario.",
+      "Fue directo a la sección \"Beneficios que te cuidan\" (el ícono del corazón). Comentó que los íconos de esa zona (chequeos preventivos, GES, etc.) le parecieron pequeños y que le gustaría que resaltaran más al ser justamente los beneficios.",
+      "Identificó correctamente la sección de planes (Alemán Integral, Esencial, Esencial Inicio) y el botón \"Cotiza tu plan ideal\". Mencionó que miraría primero los planes en detalle antes de cotizar.",
+      "Entendió \"cotiza tu plan ideal\" como el ingreso de datos personales (sueldo, edad, cargas) para recibir una oferta calculada, mientras que \"saber más de este plan\" lo interpretó como un desglose más exhaustivo de lo que incluye cada plan específico. Notó que los tres planes del prototipo mostraban los mismos porcentajes y preguntó si realmente había diferencia entre ellos (se le explicó que era una limitación del prototipo, no de la página real).",
+      "Encontró la sección de prestadores, pero al principio pensó erróneamente que al hacer clic en cada ícono se desplegaría el detalle de cobertura por clínica; le costó notar que ahí ya estaban listados los prestadores (texto pequeño). Comentó que para personas mayores como ella el texto se ve pequeño.",
+      "Llegó a la sección \"Qué deberías saber antes de elegir tu plan\" e ingresó al bloque educativo con la ilustración; entendió los conceptos (precio base, factor, edad, GES) \"a grandes rasgos\", aunque señaló que el título de esa sección se confunde con el de la sección de noticias, que tiene un nombre parecido.",
+      "Le pareció una sección clara y valiosa. Comentó que le gustaría saber exactamente qué exámenes están incluidos como preventivos (ej. mamografía, hemograma, PAP) para aprovechar el beneficio.",
+      "Agrandaría el texto de la sección de noticias / qué deberías saber (le pareció chico) y agregaría explícitamente el copago fijo por urgencia como dato destacado, ya que en su experiencia previa eso le sirvió mucho."
+    ],
+    survey: [4,5,3,5,3,4,4]
+  },
+  {
+    nombre: "Stephani",
+    edad: "",
+    grupo: "Vive con su pareja, sin hijos",
+    genero: "Femenino",
+    taskLevel: 0.5,
+    intro: [
+      "Vive con su pareja, sin hijos. Actualmente está en Isapre Colmena; antes estuvo en Vida Salud y Banmédica. Se ha cambiado de Isapre varias veces buscando mejor relación costo-beneficio.",
+      "Prioriza la relación costo-beneficio: cobertura y clínicas asociadas por sobre el precio puro. En su último cambio sacrificó cobertura en una clínica específica a cambio de mejor cobertura general por un valor similar."
+    ],
+    home: [
+      "Entendió que la página busca captar nuevos afiliados mostrando qué beneficios ofrece esta Isapre versus otras. Reconoció el logo y lo asoció correctamente al grupo Clínica Alemana, aunque no conocía Esencial como marca.",
+      "Fue directamente a \"Planes y productos\" para ver los beneficios desglosados por plan, valorando que se resaltara primero la cobertura hospitalaria.",
+      "También ubicó los planes en \"Planes y productos\". Esperaba ver la opción de simular/cotizar un poco más arriba en la página, no solo al final del bloque de planes.",
+      "Entiende \"cotizar\" y \"simular\" como conceptos distintos pero con el mismo fin (que un ejecutivo la contacte); le pareció una posible fuente de confusión que ambos botones lleven al mismo lugar y sugirió evitar repetir la palabra \"cotiza\" en múltiples botones.",
+      "Identificó correctamente la sección de prestadores, entendiendo que son todas las clínicas de la red (no solo Clínica Alemana).",
+      "Cuando se le preguntó dónde encontraría cómo se calcula el plan, respondió \"en GES\", lo cual era incorrecto — el bloque real (\"Cómo se calcula tu plan\") le pasó completamente desapercibido. Señaló que el texto y el color del botón/ilustración son muy pequeños y de bajo contraste (\"no sé si es azul o gris\"), lo que hizo que se lo saltara sin leerlo pese a haber recorrido toda la página.",
+      "Le pareció muy útil y valoró que los chequeos estén segmentados por etapa de vida (embarazo, infantil, adulto); sugirió agregar también una categoría para adulto mayor.",
+      "Sacaría el bloque de cierre repetido al final (sentía que ya se había explicado antes) y le daría más jerarquía visual al bloque de \"cómo se calcula tu plan\" ya que no lo notó. Le gustaría ver más beneficios adicionales en las tarjetas de plan (ej. telemedicina, descuentos para mascotas) más allá de solo coberturas."
+    ],
+    survey: [3,5,5,5,null,5,4]
+  },
+  {
+    nombre: "Adela Perera",
+    edad: "",
+    grupo: "Vive con su hija (Iliana), su yerno y su nieto",
+    genero: "Femenino",
+    taskLevel: 1,
+    intro: [
+      "Vive con su hija (Iliana), su yerno y su nieto. Siempre ha estado en FONASA y nunca se ha cambiado a una Isapre.",
+      "Lo primero que consideraría es conocer el plan y los beneficios que otorga, sobre todo el acceso a buenos médicos; el precio y el beneficio del plan son, para ella, los factores más importantes."
+    ],
+    home: [
+      "Entendió rápidamente que la página habla sobre los planes y beneficios que ofrece la Isapre, y que ahí se puede conocer directamente la oferta.",
+      "Fue directo a la sección de \"Beneficios que te cuidan\" sin dudar.",
+      "Ubicó los planes sin problema (\"Encuentra el plan que se adapta a ti\") y notó que el prototipo mostraba los mismos porcentajes de cobertura en los tres planes, preguntando la diferencia entre ellos (se le aclaró que era una limitación del prototipo).",
+      "Entendió \"cotiza tu plan ideal\" como una comparación entre los planes según su presupuesto, y \"saber más de este plan\" como un desglose con más detalle (clínicas, especialidades médicas); incluso preguntó si ahí se podría ver médicos en particular, algo que se le aclaró que las Isapres no muestran a ese nivel de detalle.",
+      "Identificó la sección de clínicas en convenio (\"GES en tu clínica preferente\") sin dificultad.",
+      "Llegó sin problemas a \"Qué deberías saber antes de elegir tu plan\" cuando se le preguntó cómo se calcula el precio de un plan, y mencionó la edad como el factor más importante.",
+      "Entendió con claridad que los chequeos preventivos están incluidos sin costo en todos los planes, y que corresponden a exámenes de rutina anual.",
+      "No identificó nada que sacaría; consideró que la información y el orden general de la página estaban bien, y que el recorrido de arriba hacia abajo era claro para decidir sobre un plan."
+    ],
+    survey: [4,5,5,2,5,5,5]
+  },
+  {
+    nombre: "Vivian",
+    edad: "",
+    grupo: "Pareja + 2 hijos varones (5 y 3 años)",
+    genero: "Femenino",
+    taskLevel: 0.5,
+    intro: [
+      "Vive con su pareja y sus 2 hijos varones (5 y 3 años). Actualmente está en Isapre Banmédica; se ha cambiado 3 veces antes (Cruz Blanca, luego MasVida, luego Banmédica). Es enfermera de profesión.",
+      "Prioriza la cobertura para sus hijos (consultas, exámenes, operaciones) y que el plan tenga buena cobertura en un centro de salud cercano y de prestigio. Compara siempre costo versus beneficio antes de cambiarse."
+    ],
+    home: [
+      "Entendió que la página invita a conocer la Isapre y cotizar un plan, destacando los puntos fuertes (chequeos preventivos, beneficios, prestadores) para animar al usuario a cotizar.",
+      "Encontró \"Beneficios que te cuidan\" sin problema y le llamó la atención por su cercanía con SalcoBrand, que usa habitualmente.",
+      "Ubicó la sección de planes (\"Encuentra tu plan ideal\") sin dificultad, valorando que se destaque el valor en UF y el porcentaje de cobertura de cada plan.",
+      "Interpretó que \"cotiza tu plan ideal\" pide datos personales para un resultado más personalizado (y por tanto más lento), mientras que las tarjetas de plan entregan información concreta de forma más rápida. Dijo que en general cotiza poco y prefiere no tener que ingresar muchos datos.",
+      "Encontró la sección de prestadores, pero señaló como falta real que no hay forma de filtrar por región o comuna — mencionó que si estuviera de vacaciones fuera de Santiago no sabría cuál prestador de la lista le queda cerca.",
+      "Llegó a \"Qué deberías saber antes de elegir tu plan\" y, pese a ser enfermera, dijo no saber que el precio se calculaba con esos factores (edad, GES); aunque entendió el contenido, no lo encontró muy relevante para ella y notó que el bloque con la ilustración ocupa bastante espacio.",
+      "Entendió la sección, pero destacó que el hecho de que los chequeos preventivos sean \"sin costo\" aparece con letra muy chica pese a ser, en su opinión, la información más importante de esa sección.",
+      "Agregaría un acceso a reembolsos (dice que el 90% de sus visitas a la sucursal virtual son para eso), segmentaría los prestadores por región, agregaría planes sugeridos según etapa de vida/familia, y reduciría el tamaño de la ilustración en el bloque de \"cómo se calcula tu plan\". Le generó dudas el texto \"nueva sucursal virtual para mayores de 18 años\" (le hizo preguntarse si existía una versión para menores) y no reconoció el término \"GES 90\"."
+    ],
+    survey: [5,null,5,3,3,4,4]
+  }
+];
+
+function buildRealParticipantPage(data){
+  const page = document.createElement('div');
+  page.className = 'page';
+  page.innerHTML = `
+    <div class="page-toolbar no-print">
+      <button class="ghost" onclick="removePage(this)" title="Eliminar hoja">✕</button>
+    </div>
+    <h1 class="doc-title" contenteditable="true" data-placeholder="Título del testeo">Test de usabilidad — Home Isapre Esencial</h1>
+    <div class="doc-sub" contenteditable="true" data-placeholder="Subtítulo u objetivo del testeo (opcional)">Objetivo: evaluar comprensión de beneficios, planes, prestadores y cálculo de plan en la home del sitio público</div>
+
+    <div class="profile">
+      <div class="field">
+        <label>Nombre</label>
+        <div class="profile-field" contenteditable="true" data-placeholder="Nombre del entrevistado">${data.nombre}</div>
+      </div>
+      <div class="field">
+        <label>Edad</label>
+        <div class="profile-field" contenteditable="true" data-placeholder="Edad">${data.edad || '&nbsp;'}</div>
+      </div>
+      <div class="field">
+        <label>Grupo familiar</label>
+        <div class="profile-field" contenteditable="true" data-placeholder="Ej: pareja, 2 hijos">${data.grupo}</div>
+      </div>
+      <div class="field">
+        <label>Género</label>
+        <select class="profile-field profile-gender">
+          <option value="" disabled>Seleccionar</option>
+          <option value="Femenino">Femenino</option>
+          <option value="Masculino">Masculino</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sections"></div>
+
+    <div class="add-row no-print">
+      <button onclick="addSection(this)">+ Agregar sección</button>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title" contenteditable="true">Encuesta de satisfacción</div>
+      </div>
+      <div class="survey-list"></div>
+      <div class="section-footer-actions no-print">
+        <button class="link-btn" onclick="addSurveyQuestion(this)">+ Agregar pregunta de encuesta</button>
+      </div>
+    </div>
+  `;
+
+  // género
+  const genderSelect = page.querySelector('.profile-gender');
+  genderSelect.value = data.genero;
+
+  // sección intro (sin nivel de criticidad, es solo contexto)
+  const introSection = makeSection('Preguntas de introducción');
+  introSection.querySelector('.qa-list').innerHTML = '';
+  INTRO_QUESTIONS.forEach((q,i)=>{
+    introSection.querySelector('.qa-list').appendChild(makeQARow(q, data.intro[i] || ''));
+  });
+  const introTaskEval = introSection.querySelector('.task-eval');
+  if(introTaskEval) introTaskEval.remove();
+
+  // sección home (con nivel de criticidad)
+  const homeSection = makeSection('Observar la home');
+  homeSection.querySelector('.qa-list').innerHTML = '';
+  HOME_QUESTIONS.forEach((q,i)=>{
+    homeSection.querySelector('.qa-list').appendChild(makeQARow(q, data.home[i] || ''));
+  });
+
+  const sectionsEl = page.querySelector('.sections');
+  sectionsEl.appendChild(introSection);
+  sectionsEl.appendChild(homeSection);
+
+  // encuesta CSAT
+  const surveyList = page.querySelector('.survey-list');
+  SURVEY_QUESTIONS.forEach((sq, i)=>{
+    surveyList.appendChild(makeSurveyRow(sq.q, sq.left, sq.right));
+  });
+
+  return { page, introTaskEval: null, homeSection };
+}
+
+function loadRealTestData(){
+  const pagesEl = document.getElementById('pages');
+  pagesEl.innerHTML = '';
+
+  REAL_PARTICIPANTS.forEach(data=>{
+    const { page, homeSection } = buildRealParticipantPage(data);
+    pagesEl.appendChild(page);
+
+    // Seleccionar el chip de nivel de logro en la sección "Observar la home"
+    const chipBtn = homeSection.querySelector(`.chip[data-value="${data.taskLevel}"]`);
+    if(chipBtn) selectChip(chipBtn);
+
+    // Seleccionar las caritas de la encuesta
+    const rows = page.querySelectorAll('.survey-row');
+    rows.forEach((row, i)=>{
+      const val = data.survey[i];
+      if(val !== null && val !== undefined){
+        const faceBtn = row.querySelector(`.face-btn[data-value="${val}"]`);
+        if(faceBtn) selectFace(faceBtn);
+      }
+    });
+  });
+
+  scheduleSave();
+}
+
 (function init(){
   const pagesEl = document.getElementById('pages');
   let saved = null;
@@ -1283,7 +1687,7 @@ document.addEventListener('input', scheduleSave);
   if(saved && saved.trim()){
     pagesEl.innerHTML = saved;
   } else {
-    pagesEl.appendChild(makeParticipantPage());
+    loadRealTestData();
   }
 })();
 </script>
