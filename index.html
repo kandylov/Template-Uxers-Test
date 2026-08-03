@@ -254,7 +254,19 @@ h1.doc-title{
   font-weight:600;
   font-size:13.5px;
   margin-bottom:6px;
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
 }
+.qa-num{
+  flex-shrink:0;
+  font-weight:800;
+  font-size:13px;
+  color:#FF585C;
+  min-width:1.4em;
+  line-height:1.45;
+}
+.qa-text{flex:1; min-width:0;}
 .qa-row .observacion{
   font-size:13px;
   min-height:38px;
@@ -765,12 +777,15 @@ function escapeHtml(str){
   return d.innerHTML;
 }
 
-function makeQARow(pregunta="", observacion=""){
+function makeQARow(pregunta="", observacion="", num=null){
   const row = document.createElement('div');
   row.className = 'qa-row';
+  const numHtml = num != null
+    ? `<span class="qa-num" contenteditable="false">${num}.</span>`
+    : '';
   row.innerHTML = `
     <div class="qa-main">
-      <div class="pregunta" contenteditable="true" data-placeholder="Escribe la pregunta...">${escapeHtml(pregunta)}</div>
+      <div class="pregunta">${numHtml}<span class="qa-text" contenteditable="true" data-placeholder="Escribe la pregunta...">${escapeHtml(pregunta)}</span></div>
       <div class="observacion obs-field" contenteditable="true" data-placeholder="Observaciones...">${escapeHtml(observacion)}</div>
     </div>
     <div class="row-actions">
@@ -779,16 +794,33 @@ function makeQARow(pregunta="", observacion=""){
   return row;
 }
 
-function makeSectionWithQuestions(title, pairs, withTaskEval = true){
+function makeSectionWithQuestions(title, pairs, withTaskEval = true, numbered = false){
   const sec = makeSection(title);
   const list = sec.querySelector('.qa-list');
   list.innerHTML = '';
-  pairs.forEach(({ q, a }) => list.appendChild(makeQARow(q, a || '')));
+  pairs.forEach(({ q, a }, i) => list.appendChild(makeQARow(q, a || '', numbered ? i + 1 : null)));
   if(!withTaskEval){
     const taskEval = sec.querySelector('.task-eval');
     if(taskEval) taskEval.remove();
   }
   return sec;
+}
+
+function buildTemplateSections(sectionsEl){
+  sectionsEl.appendChild(makeSectionWithQuestions(
+    'Preguntas de introducción',
+    INTRO_QUESTIONS.map(q => ({ q, a: '' })),
+    false,
+    true
+  ));
+  HOME_QUESTIONS.forEach((q, i) => {
+    sectionsEl.appendChild(makeSectionWithQuestions(
+      `Tarea ${i + 1}`,
+      [{ q, a: '' }],
+      true,
+      false
+    ));
+  });
 }
 
 function makeSection(title="Nueva sección"){
@@ -1068,7 +1100,7 @@ function generateSummary(){
       }
 
       section.querySelectorAll('.qa-row').forEach((row, qi) => {
-        const preguntaEl = row.querySelector('.pregunta');
+        const preguntaEl = row.querySelector('.qa-text') || row.querySelector('.pregunta');
         const obsEl = row.querySelector('.observacion');
         const pregunta = preguntaEl ? preguntaEl.textContent.trim() : '';
         const obs = obsEl ? obsEl.textContent.trim() : '';
@@ -1315,16 +1347,7 @@ function makeParticipantPage(base){
       </div>
     `;
     const sectionsEl = page.querySelector('.sections');
-    sectionsEl.appendChild(makeSectionWithQuestions(
-      'Preguntas de introducción',
-      INTRO_QUESTIONS.map(q => ({ q, a: '' })),
-      false
-    ));
-    sectionsEl.appendChild(makeSectionWithQuestions(
-      'Observar la home',
-      HOME_QUESTIONS.map(q => ({ q, a: '' })),
-      true
-    ));
+    buildTemplateSections(sectionsEl);
     const surveyList = page.querySelector('.survey-list');
     SURVEY_QUESTIONS.forEach(sq => surveyList.appendChild(makeSurveyRow(sq.q, sq.left, sq.right)));
   } else {
@@ -1494,7 +1517,7 @@ function initSectionDrag(){
 initSectionDrag();
 
 // --- Autoguardado en este navegador (no envía datos a ningún servidor) ---
-const STORAGE_KEY = 'bajada-testeo-autosave-v3';
+const STORAGE_KEY = 'bajada-testeo-autosave-v4';
 let saveTimeout = null;
 let saveSuspended = false;
 
@@ -1689,15 +1712,16 @@ function fillParticipantPage(page, data){
     });
   }
 
-  const homeSection = getSectionByTitle(page, 'Observar la home');
-  if(homeSection){
-    homeSection.querySelectorAll('.qa-row').forEach((row, i) => {
-      const obs = row.querySelector('.observacion');
-      if(obs) obs.textContent = data.home[i] || '';
-    });
-    const chipBtn = homeSection.querySelector(`.chip[data-value="${data.taskLevel}"]`);
-    if(chipBtn) selectChip(chipBtn);
-  }
+  HOME_QUESTIONS.forEach((_, i) => {
+    const section = getSectionByTitle(page, `Tarea ${i + 1}`);
+    if(!section) return;
+    const obs = section.querySelector('.observacion');
+    if(obs) obs.textContent = data.home[i] || '';
+    if(i === 0){
+      const chipBtn = section.querySelector(`.chip[data-value="${data.taskLevel}"]`);
+      if(chipBtn) selectChip(chipBtn);
+    }
+  });
 
   page.querySelectorAll('.survey-row').forEach((row, i) => {
     const val = data.survey[i];
@@ -1707,7 +1731,7 @@ function fillParticipantPage(page, data){
     }
   });
 
-  return { page, homeSection };
+  return { page };
 }
 
 function loadRealTestData(){
@@ -1730,7 +1754,7 @@ function loadRealTestData(){
 function confirmLoadRealTestData(){
   openConfirmModal(
     '¿Cargar respuestas de las entrevistas?',
-    'Se mantendrá la plantilla con sus secciones y preguntas. Solo se rellenarán las observaciones, perfiles y encuestas de Patricia, Stephani, Adela y Vivian.',
+    'Se mantendrá la plantilla con tareas numeradas (Tarea 1–8) y preguntas de intro numeradas. Solo se rellenarán las observaciones, perfiles y encuestas de Patricia, Stephani, Adela y Vivian.',
     () => loadRealTestData(),
     'Cargar respuestas'
   );
