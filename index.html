@@ -161,7 +161,14 @@ h1.doc-title{
   border-bottom:2px solid var(--ink);
   padding-bottom:6px;
   margin-bottom:14px;
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
 }
+.section-head .section-title{cursor:text; user-select:text; -webkit-user-select:text;}
+.section-head .section-delete{cursor:pointer;}
+.section.dragging .section-head{cursor:grabbing;}
 .drag-handle{
   cursor:grab;
   font-size:20px;
@@ -708,6 +715,7 @@ h1.doc-title{
 
 <div class="toolbar no-print">
   <button class="primary" onclick="addParticipant()">+ Nuevo entrevistado</button>
+  <button onclick="confirmLoadRealTestData()">Cargar datos de prueba</button>
   <button onclick="generateSummary()">Generar resumen</button>
   <button onclick="window.print()">Exportar a PDF</button>
   <div class="spacer"></div>
@@ -723,7 +731,7 @@ h1.doc-title{
     <div class="modal-text" id="confirmModalText"></div>
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeConfirmModal()">Cancelar</button>
-      <button class="modal-btn danger" onclick="confirmModalAction()">Eliminar</button>
+      <button class="modal-btn danger" id="confirmModalActionBtn" onclick="confirmModalAction()">Eliminar</button>
     </div>
   </div>
 </div>
@@ -1335,9 +1343,10 @@ function removePage(btn){
 // ---------- Modal de confirmación genérico ----------
 let _pendingConfirmCallback = null;
 
-function openConfirmModal(title, text, callback){
+function openConfirmModal(title, text, callback, confirmLabel='Eliminar'){
   document.getElementById('confirmModalTitle').textContent = title;
   document.getElementById('confirmModalText').textContent = text;
+  document.getElementById('confirmModalActionBtn').textContent = confirmLabel;
   _pendingConfirmCallback = callback;
   document.getElementById('confirmModal').classList.add('open');
 }
@@ -1375,43 +1384,94 @@ function confirmDeleteTaskEval(btn){
 }
 
 // ---------- Arrastrar secciones para reordenarlas ----------
-function startSectionDrag(e){
-  const handle = e.target.closest('.drag-handle');
-  if(!handle) return;
-  const section = handle.closest('.section');
-  const container = section.parentElement;
-  if(!container || !container.classList.contains('sections')) return;
-  e.preventDefault();
-  section.classList.add('dragging');
-
-  function onMove(ev){
-    const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
-    const siblings = Array.from(container.querySelectorAll('.section:not(.dragging)'));
-    const after = siblings.find(sib => {
-      const rect = sib.getBoundingClientRect();
-      return clientY < rect.top + rect.height / 2;
-    });
-    if(after){
-      container.insertBefore(section, after);
-    } else {
-      container.appendChild(section);
+function getSectionDropTarget(container, clientY, draggingSection){
+  const siblings = Array.from(container.querySelectorAll('.section')).filter(s => s !== draggingSection);
+  for(const sib of siblings){
+    const rect = sib.getBoundingClientRect();
+    if(clientY < rect.top + rect.height / 2){
+      return sib;
     }
   }
-  function onUp(){
-    section.classList.remove('dragging');
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('touchmove', onMove);
-    document.removeEventListener('mouseup', onUp);
-    document.removeEventListener('touchend', onUp);
-    scheduleSave();
-  }
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('touchmove', onMove, {passive:false});
-  document.addEventListener('mouseup', onUp);
-  document.addEventListener('touchend', onUp);
+  return null;
 }
-document.addEventListener('mousedown', startSectionDrag);
-document.addEventListener('touchstart', startSectionDrag, {passive:false});
+
+function initSectionDrag(){
+  document.addEventListener('pointerdown', function(e){
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    if(e.target.closest('.section-delete')) return;
+
+    const head = e.target.closest('.section-head');
+    if(!head) return;
+
+    const section = head.closest('.section');
+    if(!section) return;
+
+    const container = section.parentElement;
+    if(!container || !container.classList.contains('sections')) return;
+
+    const fromHandle = !!e.target.closest('.drag-handle');
+    const captureEl = head;
+
+    if(fromHandle){
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    const startY = e.clientY;
+    let dragging = false;
+    let captured = false;
+
+    function onMove(ev){
+      if(ev.pointerId !== e.pointerId) return;
+
+      if(!dragging && Math.abs(ev.clientY - startY) < 4) return;
+
+      if(!dragging){
+        dragging = true;
+        const title = head.querySelector('.section-title');
+        if(title) title.blur();
+        if(!captured){
+          captureEl.setPointerCapture(ev.pointerId);
+          captured = true;
+        }
+      }
+
+      ev.preventDefault();
+      section.classList.add('dragging');
+
+      const after = getSectionDropTarget(container, ev.clientY, section);
+      if(after){
+        container.insertBefore(section, after);
+      } else {
+        container.appendChild(section);
+      }
+    }
+
+    function onUp(ev){
+      if(ev.pointerId !== e.pointerId) return;
+
+      section.classList.remove('dragging');
+      if(captured){
+        try{ captureEl.releasePointerCapture(ev.pointerId); }catch(err){}
+      }
+      captureEl.removeEventListener('pointermove', onMove);
+      captureEl.removeEventListener('pointerup', onUp);
+      captureEl.removeEventListener('pointercancel', onUp);
+
+      if(dragging) scheduleSave();
+    }
+
+    if(fromHandle){
+      captureEl.setPointerCapture(e.pointerId);
+      captured = true;
+    }
+
+    captureEl.addEventListener('pointermove', onMove);
+    captureEl.addEventListener('pointerup', onUp);
+    captureEl.addEventListener('pointercancel', onUp);
+  });
+}
+initSectionDrag();
 
 // --- Autoguardado en este navegador (no envía datos a ningún servidor) ---
 const STORAGE_KEY = 'bajada-testeo-autosave-v1';
@@ -1683,6 +1743,15 @@ function loadRealTestData(){
   });
 
   scheduleSave();
+}
+
+function confirmLoadRealTestData(){
+  openConfirmModal(
+    '¿Cargar datos de prueba?',
+    'Se reemplazará todo lo que hay en pantalla por las 4 entrevistas precargadas (Patricia, Stephani, Adela y Vivian). Podrás seguir editando después.',
+    () => loadRealTestData(),
+    'Cargar'
+  );
 }
 
 (function init(){
