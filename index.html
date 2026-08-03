@@ -1779,7 +1779,8 @@ function confirmLoadRealTestData(){
   if(saved && saved.trim()){
     pagesEl.innerHTML = saved;
   } else {
-    pagesEl.appendChild(makeParticipantPage());
+    // Sin datos guardados: cargar las 4 entrevistas (Patricia, Stephani, Adela, Vivian)
+    loadRealTestData();
   }
 })();
 </script>
