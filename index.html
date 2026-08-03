@@ -759,18 +759,36 @@ document.addEventListener('paste', function(e){
   selection.addRange(range);
 });
 
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
 function makeQARow(pregunta="", observacion=""){
   const row = document.createElement('div');
   row.className = 'qa-row';
   row.innerHTML = `
     <div class="qa-main">
-      <div class="pregunta" contenteditable="true" data-placeholder="Escribe la pregunta...">${pregunta}</div>
-      <div class="observacion obs-field" contenteditable="true" data-placeholder="Observaciones...">${observacion}</div>
+      <div class="pregunta" contenteditable="true" data-placeholder="Escribe la pregunta...">${escapeHtml(pregunta)}</div>
+      <div class="observacion obs-field" contenteditable="true" data-placeholder="Observaciones...">${escapeHtml(observacion)}</div>
     </div>
     <div class="row-actions">
       <button class="ghost no-print" onclick="this.closest('.qa-row').remove()">✕</button>
     </div>`;
   return row;
+}
+
+function makeSectionWithQuestions(title, pairs, withTaskEval = true){
+  const sec = makeSection(title);
+  const list = sec.querySelector('.qa-list');
+  list.innerHTML = '';
+  pairs.forEach(({ q, a }) => list.appendChild(makeQARow(q, a || '')));
+  if(!withTaskEval){
+    const taskEval = sec.querySelector('.task-eval');
+    if(taskEval) taskEval.remove();
+  }
+  return sec;
 }
 
 function makeSection(title="Nueva sección"){
@@ -862,7 +880,7 @@ function makeSurveyRow(question="¿Qué tan claro fue esto?", left="Muy poco cla
 </clipPath>
 </defs>
 </svg></button>
-    <div class="survey-question" contenteditable="true" data-placeholder="Pregunta de la encuesta...">${question}</div>
+    <div class="survey-question" contenteditable="true" data-placeholder="Pregunta de la encuesta...">${escapeHtml(question)}</div>
     <div class="faces" data-group="${faceUid}">
       <button class="face-btn no-print-disable" onclick="selectFace(this)" data-value="1">😞</button>
       <button class="face-btn" onclick="selectFace(this)" data-value="2">🙁</button>
@@ -871,8 +889,8 @@ function makeSurveyRow(question="¿Qué tan claro fue esto?", left="Muy poco cla
       <button class="face-btn" onclick="selectFace(this)" data-value="5">😄</button>
     </div>
     <div class="face-labels-edit">
-      <div class="left" contenteditable="true" data-placeholder="1 = ...">${left}</div>
-      <div class="right" contenteditable="true" data-placeholder="5 = ...">${right}</div>
+      <div class="left" contenteditable="true" data-placeholder="1 = ...">${escapeHtml(left)}</div>
+      <div class="right" contenteditable="true" data-placeholder="5 = ...">${escapeHtml(right)}</div>
     </div>
   `;
   return row;
@@ -988,12 +1006,6 @@ const RECOMMENDATION_BY_LEVEL = {
   'Alto':  'Problema crítico de usabilidad — se recomienda rediseñar esta sección.'
 };
 const FACE_BY_VALUE = {1:'😞', 2:'🙁', 3:'😐', 4:'🙂', 5:'😄'};
-
-function escapeHtml(str){
-  const d = document.createElement('div');
-  d.textContent = str || '';
-  return d.innerHTML;
-}
 
 function buildStaticGauge(avgPct){
   const info = getCriticidad(avgPct);
@@ -1260,8 +1272,8 @@ function makeParticipantPage(base){
       <div class="page-toolbar no-print">
         <button class="ghost" onclick="removePage(this)" title="Eliminar hoja">✕</button>
       </div>
-      <h1 class="doc-title" contenteditable="true" data-placeholder="Título del testeo">Informe de testeo de usabilidad — Onboarding app</h1>
-      <div class="doc-sub" contenteditable="true" data-placeholder="Subtítulo u objetivo del testeo (opcional)">Objetivo: evaluar comprensión y facilidad de uso del flujo inicial</div>
+      <h1 class="doc-title" contenteditable="true" data-placeholder="Título del testeo">Test de usabilidad — Home Isapre Esencial</h1>
+      <div class="doc-sub" contenteditable="true" data-placeholder="Subtítulo u objetivo del testeo (opcional)">Objetivo: evaluar comprensión de beneficios, planes, prestadores y cálculo de plan en la home del sitio público</div>
 
       <div class="profile">
         <div class="field">
@@ -1303,10 +1315,18 @@ function makeParticipantPage(base){
       </div>
     `;
     const sectionsEl = page.querySelector('.sections');
-    sectionsEl.appendChild(makeSection('Preguntas de introducción'));
-    sectionsEl.appendChild(makeSection('Observar la home'));
-    page.querySelector('.survey-list').appendChild(makeSurveyRow('¿Qué tan claro fue navegar la home?','Muy poco claro','Muy claro'));
-    page.querySelector('.survey-list').appendChild(makeSurveyRow('¿Qué tan útil te pareció esta sección?','Poco útil','Muy útil'));
+    sectionsEl.appendChild(makeSectionWithQuestions(
+      'Preguntas de introducción',
+      INTRO_QUESTIONS.map(q => ({ q, a: '' })),
+      false
+    ));
+    sectionsEl.appendChild(makeSectionWithQuestions(
+      'Observar la home',
+      HOME_QUESTIONS.map(q => ({ q, a: '' })),
+      true
+    ));
+    const surveyList = page.querySelector('.survey-list');
+    SURVEY_QUESTIONS.forEach(sq => surveyList.appendChild(makeSurveyRow(sq.q, sq.left, sq.right)));
   } else {
     page.innerHTML = base.innerHTML;
     // limpiar datos propios del entrevistado, mantener estructura de preguntas
@@ -1474,7 +1494,7 @@ function initSectionDrag(){
 initSectionDrag();
 
 // --- Autoguardado en este navegador (no envía datos a ningún servidor) ---
-const STORAGE_KEY = 'bajada-testeo-autosave-v1';
+const STORAGE_KEY = 'bajada-testeo-autosave-v2';
 let saveTimeout = null;
 
 function scheduleSave(){
@@ -1649,7 +1669,7 @@ function buildRealParticipantPage(data){
     <div class="profile">
       <div class="field">
         <label>Nombre</label>
-        <div class="profile-field" contenteditable="true" data-placeholder="Nombre del entrevistado">${data.nombre}</div>
+        <div class="profile-field" contenteditable="true" data-placeholder="Nombre del entrevistado">${escapeHtml(data.nombre)}</div>
       </div>
       <div class="field">
         <label>Edad</label>
@@ -1657,7 +1677,7 @@ function buildRealParticipantPage(data){
       </div>
       <div class="field">
         <label>Grupo familiar</label>
-        <div class="profile-field" contenteditable="true" data-placeholder="Ej: pareja, 2 hijos">${data.grupo}</div>
+        <div class="profile-field" contenteditable="true" data-placeholder="Ej: pareja, 2 hijos">${escapeHtml(data.grupo)}</div>
       </div>
       <div class="field">
         <label>Género</label>
@@ -1691,20 +1711,18 @@ function buildRealParticipantPage(data){
   genderSelect.value = data.genero;
 
   // sección intro (sin nivel de criticidad, es solo contexto)
-  const introSection = makeSection('Preguntas de introducción');
-  introSection.querySelector('.qa-list').innerHTML = '';
-  INTRO_QUESTIONS.forEach((q,i)=>{
-    introSection.querySelector('.qa-list').appendChild(makeQARow(q, data.intro[i] || ''));
-  });
-  const introTaskEval = introSection.querySelector('.task-eval');
-  if(introTaskEval) introTaskEval.remove();
+  const introSection = makeSectionWithQuestions(
+    'Preguntas de introducción',
+    INTRO_QUESTIONS.map((q, i) => ({ q, a: data.intro[i] || '' })),
+    false
+  );
 
   // sección home (con nivel de criticidad)
-  const homeSection = makeSection('Observar la home');
-  homeSection.querySelector('.qa-list').innerHTML = '';
-  HOME_QUESTIONS.forEach((q,i)=>{
-    homeSection.querySelector('.qa-list').appendChild(makeQARow(q, data.home[i] || ''));
-  });
+  const homeSection = makeSectionWithQuestions(
+    'Observar la home',
+    HOME_QUESTIONS.map((q, i) => ({ q, a: data.home[i] || '' })),
+    true
+  );
 
   const sectionsEl = page.querySelector('.sections');
   sectionsEl.appendChild(introSection);
