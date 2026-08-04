@@ -2303,7 +2303,10 @@ let saveSuspended = false;
 function scheduleSave(){
   if(saveSuspended) return;
   clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(saveState, 400);
+  saveTimeout = setTimeout(() => {
+    syncSelectsToHtml();
+    saveState();
+  }, 400);
 }
 
 function saveState(){
@@ -2320,11 +2323,28 @@ function clearSavedState(){
 }
 
 /** Descarga un .html con el contenido actual embebido (otra persona lo abre y ve todo lo escrito). */
-function downloadFilledHtml(){
-  // Sincronizar <select> al HTML antes de serializar
+
+/** Deja la opción elegida marcada en el HTML (necesario para autoguardado y Descargar HTML). */
+function syncSelectsToHtml(){
   document.querySelectorAll('#pages select').forEach(sel => {
-    Array.from(sel.options).forEach(opt => { opt.selected = (opt.value === sel.value); });
+    const val = sel.value;
+    Array.from(sel.options).forEach(opt => {
+      if(opt.value === val) opt.setAttribute('selected', 'selected');
+      else opt.removeAttribute('selected');
+    });
   });
+}
+
+/** Tras pegar HTML guardado, aplica el selected al value del <select>. */
+function syncSelectsFromHtml(){
+  document.querySelectorAll('#pages select').forEach(sel => {
+    const marked = sel.querySelector('option[selected]');
+    if(marked) sel.value = marked.value;
+  });
+}
+
+function downloadFilledHtml(){
+  syncSelectsToHtml();
   saveState();
 
   const pagesHtml = document.getElementById('pages').innerHTML;
@@ -2381,7 +2401,7 @@ new MutationObserver(scheduleSave).observe(document.getElementById('pages'), {
 // sincronizamos el atributo "selected" para que el autoguardado los capture bien.
 document.addEventListener('change', function(e){
   if(e.target.tagName === 'SELECT'){
-    Array.from(e.target.options).forEach(opt => opt.selected = (opt.value === e.target.value));
+    syncSelectsToHtml();
     scheduleSave();
   }
 });
@@ -2757,6 +2777,7 @@ function stripExecConclusions(){
     ensureBinaryCloseButtons();
     upgradeSurveyRows();
     stripExecConclusions();
+    syncSelectsFromHtml();
     scheduleSave();
     return;
   }
@@ -2768,12 +2789,14 @@ function stripExecConclusions(){
     ensureBinaryCloseButtons();
     upgradeSurveyRows();
     stripExecConclusions();
+    syncSelectsFromHtml();
     scheduleSave();
     return;
   }
   // 3) Primera apertura: contenido del informe PDF
   loadRealTestData();
   stripExecConclusions();
+  syncSelectsFromHtml();
 })();
 </script>
 
