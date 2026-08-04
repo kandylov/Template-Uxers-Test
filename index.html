@@ -7056,22 +7056,40 @@ function saveState(){
 }
 
 function clearSavedState(){
-  if(!confirm('¿Borrar todo lo escrito y empezar de cero? El contenido del archivo en GitHub no se pierde; solo se limpia esta sesión en el navegador.')) return;
-
-  window.__EMBEDDED_PAGES__ = '';
-
-  const pagesEl = document.getElementById('pages');
-  pagesEl.innerHTML = '';
-  pagesEl.appendChild(makeParticipantPage());
+  if(!confirm('¿Borrar todo y empezar de cero en este navegador?\n\nTu archivo en GitHub no se modifica.')) return;
 
   try{
-    localStorage.setItem(STORAGE_KEY, pagesEl.innerHTML);
-    localStorage.setItem(STORAGE_KEY + '-cleared', '1');
+    window.__EMBEDDED_PAGES__ = '';
   }catch(e){}
 
-  scheduleSave();
-  window.scrollTo(0, 0);
+  const pagesEl = document.getElementById('pages');
+  if(!pagesEl){ alert('No se encontró el contenido'); return; }
+
+  // Vaciar ya (efecto inmediato)
+  pagesEl.innerHTML = '';
+
+  let blankHtml = '';
+  try{
+    const blank = makeParticipantPage();
+    pagesEl.appendChild(blank);
+    blankHtml = pagesEl.innerHTML;
+  }catch(err){
+    console.error(err);
+    blankHtml = '<div class="page"><h1 class="doc-title" contenteditable="true">Nuevo testeo</h1><div class="sections"></div></div>';
+    pagesEl.innerHTML = blankHtml;
+  }
+
+  try{
+    localStorage.setItem(STORAGE_KEY, blankHtml);
+    localStorage.setItem(STORAGE_KEY + '-cleared', '1');
+  }catch(e){
+    alert('No se pudo guardar el estado vacío en el navegador: ' + e.message);
+  }
+
+  // Recargar para que no vuelva el HTML embebido del archivo
+  location.reload();
 }
+
 
 
 /** Descarga un .html con el contenido actual embebido (otra persona lo abre y ve todo lo escrito). */
