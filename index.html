@@ -690,7 +690,7 @@ h1.doc-title{
 /* Sí / No binarias (por tarea) — layout 2 columnas como pantallazo */
 .task-binary{
   margin:10px 0 14px;
-  padding:22px 40px 20px 20px;
+  padding:12px 32px 12px 14px;
   background:#fff;
   border:1px solid var(--border);
   border-radius:12px;
@@ -727,8 +727,8 @@ h1.doc-title{
   align-items:center;
   justify-content:center;
   text-align:center;
-  gap:14px;
-  padding:8px 20px;
+  gap:8px;
+  padding:4px 14px;
 }
 .binary-row + .binary-row{
   border-left:1px solid var(--border);
@@ -742,9 +742,53 @@ h1.doc-title{
 }
 .binary-opts{
   display:flex;
-  gap:10px;
+  gap:16px;
   justify-content:center;
+  align-items:center;
 }
+.binary-check{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink);
+  cursor:pointer;
+  user-select:none;
+}
+.binary-check input{
+  position:absolute;
+  opacity:0;
+  width:0;
+  height:0;
+  pointer-events:none;
+}
+.binary-box{
+  width:18px;
+  height:18px;
+  border:1.5px solid #C5CAD6;
+  border-radius:4px;
+  background:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.binary-check:hover .binary-box{border-color:#9AA3B5;}
+.binary-check input:checked + .binary-box{
+  background:var(--ink);
+  border-color:var(--ink);
+}
+.binary-check input:checked + .binary-box::after{
+  content:"";
+  width:10px;
+  height:6px;
+  border:2px solid #fff;
+  border-top:none;
+  border-right:none;
+  transform:rotate(-45deg) translate(1px, -1px);
+}
+
 .binary-opt{
   border:1px solid var(--border);
   background:#F0F1F5;
@@ -927,14 +971,14 @@ h1.doc-title{
   border-color:transparent;
 }
 .face-btn.selected{
-  background:#0F202B !important;
-  border:none !important;
+  background:#fff !important;
+  border:1.5px solid currentColor !important;
+  box-shadow:0 0 0 3px rgba(15,32,43,.06);
   transform:scale(1.06);
   filter:none;
-  /* Mantiene el color semántico del data-value (no pasa a negro) */
 }
 .face-btn.selected:hover{
-  background:#0F202B !important;
+  background:#fff !important;
   filter:none;
 }
 .face-btn.selected .face-icon{
@@ -949,8 +993,8 @@ h1.doc-title{
 }
 .face-btn.selected:focus,
 .face-btn.selected:focus-visible{
-  outline-color:#0F202B;
-  background:#0F202B !important;
+  outline-color:currentColor;
+  background:#fff !important;
 }
 .face-btn.anim-bounce{
   animation:faceBounce .55s cubic-bezier(.34,1.56,.64,1);
@@ -6054,15 +6098,15 @@ function makeSection(title="Nueva sección"){
       <div class="binary-row">
         <span class="binary-q" contenteditable="true">¿Entendió el objetivo del bloque?</span>
         <div class="binary-opts" data-key="entendio">
-          <button type="button" class="binary-opt" data-value="1" onclick="selectBinary(this)">Sí</button>
-          <button type="button" class="binary-opt" data-value="0" onclick="selectBinary(this)">No</button>
+          <label class="binary-check"><input type="checkbox" data-value="1" onchange="selectBinaryCheck(this)"><span class="binary-box"></span>Sí</label>
+          <label class="binary-check"><input type="checkbox" data-value="0" onchange="selectBinaryCheck(this)"><span class="binary-box"></span>No</label>
         </div>
       </div>
       <div class="binary-row">
         <span class="binary-q" contenteditable="true">¿Encontró la sección?</span>
         <div class="binary-opts" data-key="encontro">
-          <button type="button" class="binary-opt" data-value="1" onclick="selectBinary(this)">Sí</button>
-          <button type="button" class="binary-opt" data-value="0" onclick="selectBinary(this)">No</button>
+          <label class="binary-check"><input type="checkbox" data-value="1" onchange="selectBinaryCheck(this)"><span class="binary-box"></span>Sí</label>
+          <label class="binary-check"><input type="checkbox" data-value="0" onchange="selectBinaryCheck(this)"><span class="binary-box"></span>No</label>
         </div>
       </div>
     </div>
@@ -6271,6 +6315,61 @@ function selectChip(btn){
   const marker = taskEval.querySelector('.criticidad-marker');
   marker.style.left = pctToVisual(pct) + '%';
   marker.classList.add('active');
+}
+
+
+function selectBinaryCheck(input){
+  const group = input.closest('.binary-opts');
+  if(!group) return;
+  group.querySelectorAll('input[type="checkbox"]').forEach(el => { if(el !== input) el.checked = false; });
+  if(!input.checked) input.checked = true;
+  scheduleSave();
+}
+function getBinarySelectedValue(section, key){
+  const group = section.querySelector('.binary-opts[data-key="'+key+'"]');
+  if(!group) return null;
+  const checked = group.querySelector('input[type="checkbox"]:checked');
+  if(checked) return parseInt(checked.dataset.value, 10);
+  const legacy = group.querySelector('.binary-opt.selected');
+  if(legacy) return parseInt(legacy.dataset.value, 10);
+  return null;
+}
+function getCsatColor(avg){
+  const v = Math.round(Math.min(5, Math.max(1, Number(avg) || 0)));
+  return ({1:'#E93939',2:'#D6570E',3:'#B4B108',4:'#155BEB',5:'#029818'})[v] || 'inherit';
+}
+function colorizeExecStats(root){
+  const scope = root || document;
+  scope.querySelectorAll('.summary-page .exec-stats, .exec-stats').forEach(stats => {
+    if(!stats.closest('.summary-page') && !stats.querySelector('.lbl')) return;
+    const nums = stats.querySelectorAll('.exec-stat .num');
+    if(nums.length < 4) return;
+    const exitoTxt = (nums[1].textContent || '').trim();
+    const mPct = exitoTxt.match(/(\d+)/);
+    if(mPct){ nums[1].style.color = getCriticidad(parseFloat(mPct[1])).color; }
+    const critTxt = (nums[2].textContent || '').trim().toLowerCase();
+    const byLabel = {nula:'#029818',bajo:'#155BEB',medio:'#8A8C1A',alto:'#C0392B'};
+    if(byLabel[critTxt]) nums[2].style.color = byLabel[critTxt];
+    const csatTxt = (nums[3].textContent || '').trim();
+    const mCsat = csatTxt.match(/([\d.]+)/);
+    if(mCsat){ nums[3].style.color = getCsatColor(parseFloat(mCsat[1])); }
+  });
+}
+function upgradeBinaryCheckboxes(){
+  document.querySelectorAll('.binary-opts').forEach(group => {
+    if(group.querySelector('input[type="checkbox"]')) return;
+    const legacy = Array.from(group.querySelectorAll('button.binary-opt, .binary-opt'));
+    if(!legacy.length) return;
+    const selected = group.querySelector('.binary-opt.selected');
+    const selectedVal = selected ? selected.dataset.value : null;
+    group.innerHTML = '';
+    [['1','Sí'],['0','No']].forEach(([val, label]) => {
+      const lab = document.createElement('label');
+      lab.className = 'binary-check';
+      lab.innerHTML = '<input type="checkbox" data-value="'+val+'" onchange="selectBinaryCheck(this)"'+(selectedVal===val?' checked':'')+'><span class="binary-box"></span>'+label;
+      group.appendChild(lab);
+    });
+  });
 }
 
 function selectBinary(btn){
@@ -6606,10 +6705,10 @@ function generateSummary(){
         t.pctValues.push(parseFloat(marker.dataset.pct));
       }
 
-      const entendioBtn = section.querySelector('.binary-opts[data-key="entendio"] .binary-opt.selected');
-      if(entendioBtn) t.entendio.push(parseFloat(entendioBtn.dataset.value));
-      const encontroBtn = section.querySelector('.binary-opts[data-key="encontro"] .binary-opt.selected');
-      if(encontroBtn) t.encontro.push(parseFloat(encontroBtn.dataset.value));
+      const entendioVal = getBinarySelectedValue(section, 'entendio');
+      if(entendioVal !== null) t.entendio.push(entendioVal);
+      const encontroVal = getBinarySelectedValue(section, 'encontro');
+      if(encontroVal !== null) t.encontro.push(encontroVal);
 
       section.querySelectorAll('.qa-row').forEach((row, qi) => {
         const preguntaEl = row.querySelector('.qa-text') || row.querySelector('.pregunta');
@@ -6737,14 +6836,17 @@ function generateSummary(){
   }
 
   // --- 6. Stats rápidas (editables) ---
-  const csatOverallForStat = surveyWithData.length ? (surveyWithData.reduce((a,b)=>a+b.avg,0)/surveyWithData.length).toFixed(1) : '—';
+  const csatOverallNum = surveyWithData.length ? (surveyWithData.reduce((a,b)=>a+b.avg,0)/surveyWithData.length) : null;
+  const csatOverallForStat = csatOverallNum!==null ? csatOverallNum.toFixed(1) : '—';
+  const csatColor = csatOverallNum!==null ? getCsatColor(csatOverallNum) : 'inherit';
+  const exitoColor = overallPct!==null ? getCriticidad(overallPct).color : 'inherit';
   const statsEl = document.createElement('div');
   statsEl.className = 'exec-stats';
   statsEl.innerHTML = `
     <div class="exec-stat"><div class="num" contenteditable="true">${N}</div><div class="lbl" contenteditable="true">Entrevistados</div></div>
-    <div class="exec-stat"><div class="num" contenteditable="true">${overallPct!==null ? Math.round(overallPct)+'%' : '—'}</div><div class="lbl" contenteditable="true">Éxito promedio</div></div>
+    <div class="exec-stat"><div class="num" contenteditable="true" style="color:${exitoColor}">${overallPct!==null ? Math.round(overallPct)+'%' : '—'}</div><div class="lbl" contenteditable="true">Éxito promedio</div></div>
     <div class="exec-stat"><div class="num" contenteditable="true" style="color:${overallInfo?overallInfo.color:'inherit'}">${overallInfo?overallInfo.label:'—'}</div><div class="lbl" contenteditable="true">Criticidad global</div></div>
-    <div class="exec-stat"><div class="num" contenteditable="true">${csatOverallForStat}${csatOverallForStat!=='—'?'/5':''}</div><div class="lbl" contenteditable="true">CSAT promedio</div></div>`;
+    <div class="exec-stat"><div class="num" contenteditable="true" style="color:${csatColor}">${csatOverallForStat}${csatOverallForStat!=='—'?'/5':''}</div><div class="lbl" contenteditable="true">CSAT promedio</div></div>`;
 
   const fecha = new Date().toLocaleDateString('es-CL', {day:'numeric', month:'long', year:'numeric'});
 
@@ -7517,6 +7619,8 @@ window.__EMBEDDED_PAGES__ = "<div class=\"page\">\n      <div class=\"page-toolb
     pagesEl.innerHTML = window.__EMBEDDED_PAGES__;
     ensureBinaryCloseButtons();
     upgradeSurveyRows();
+    upgradeBinaryCheckboxes();
+    colorizeExecStats();
     stripExecConclusions();
     return;
   }
@@ -7528,6 +7632,8 @@ window.__EMBEDDED_PAGES__ = "<div class=\"page\">\n      <div class=\"page-toolb
     pagesEl.innerHTML = saved;
     ensureBinaryCloseButtons();
     upgradeSurveyRows();
+    upgradeBinaryCheckboxes();
+    colorizeExecStats();
     stripExecConclusions();
     return;
   }
@@ -7536,6 +7642,8 @@ window.__EMBEDDED_PAGES__ = "<div class=\"page\">\n      <div class=\"page-toolb
   if(pagesEl && pagesEl.innerHTML.trim()){
     ensureBinaryCloseButtons();
     upgradeSurveyRows();
+    upgradeBinaryCheckboxes();
+    colorizeExecStats();
     stripExecConclusions();
     return;
   }
