@@ -7037,7 +7037,7 @@ function initSectionDrag(){
 initSectionDrag();
 
 // --- Autoguardado en este navegador (no envía datos a ningún servidor) ---
-const STORAGE_KEY = 'bajada-testeo-autosave-v10';
+const STORAGE_KEY = 'bajada-testeo-autosave-v11';
 let saveTimeout = null;
 let saveSuspended = false;
 
@@ -7056,7 +7056,7 @@ function saveState(){
 }
 
 function clearSavedState(){
-  if(!confirm('¿Empezar de cero en esta pestaña?\n\nVerás una hoja en blanco para usar la herramienta.\nAl volver a abrir el link de GitHub, el informe publicado sigue igual.')) return;
+  if(!confirm('¿Empezar de cero en esta pestaña?\n\nPodrás llenar y descargar PDF/HTML.\nSi recargas el link de GitHub, vuelve el informe publicado.')) return;
 
   const pagesEl = document.getElementById('pages');
   if(!pagesEl) return;
@@ -7069,14 +7069,17 @@ function clearSavedState(){
     pagesEl.innerHTML = '<div class="page"><h1 class="doc-title" contenteditable="true">Nuevo testeo</h1><div class="sections"></div><div class="add-row no-print"><button onclick="addSection(this)">+ Agregar sección</button></div></div>';
   }
 
+  // No pisar el informe de GitHub: solo limpiar esta vista.
+  // Al recargar la página, se vuelve a mostrar __EMBEDDED_PAGES__.
   try{
-    sessionStorage.setItem(STORAGE_KEY + '-blank', '1');
-    localStorage.setItem(STORAGE_KEY, pagesEl.innerHTML);
+    sessionStorage.removeItem(STORAGE_KEY + '-blank');
     localStorage.removeItem(STORAGE_KEY + '-cleared');
+    localStorage.removeItem(STORAGE_KEY);
   }catch(e){}
 
   window.scrollTo(0, 0);
 }
+
 
 
 
@@ -7503,22 +7506,13 @@ window.__EMBEDDED_PAGES__ = "<div class=\"page\">\n      <div class=\"page-toolb
 (function init(){
   const pagesEl = document.getElementById('pages');
 
-  let blankMode = null, saved = null;
+  // Limpiar flags viejos que dejaban la página en blanco
   try{
-    blankMode = sessionStorage.getItem(STORAGE_KEY + '-blank');
-    saved = localStorage.getItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY + '-cleared');
+    sessionStorage.removeItem(STORAGE_KEY + '-blank');
   }catch(e){}
 
-  // Modo plantilla vacía solo mientras dura esta pestaña (tras "Borrar todo")
-  if(blankMode === '1' && saved !== null){
-    pagesEl.innerHTML = saved;
-    ensureBinaryCloseButtons();
-    upgradeSurveyRows();
-    stripExecConclusions();
-    return;
-  }
-
-  // Por defecto: informe publicado en el HTML/GitHub
+  // 1) Siempre priorizar el informe publicado en el HTML (GitHub)
   if(typeof window.__EMBEDDED_PAGES__ === 'string' && window.__EMBEDDED_PAGES__.trim()){
     pagesEl.innerHTML = window.__EMBEDDED_PAGES__;
     ensureBinaryCloseButtons();
@@ -7527,6 +7521,9 @@ window.__EMBEDDED_PAGES__ = "<div class=\"page\">\n      <div class=\"page-toolb
     return;
   }
 
+  // 2) Autoguardado (solo plantillas sin datos embebidos)
+  let saved = null;
+  try{ saved = localStorage.getItem(STORAGE_KEY); }catch(e){}
   if(saved && saved.trim()){
     pagesEl.innerHTML = saved;
     ensureBinaryCloseButtons();
@@ -7535,6 +7532,7 @@ window.__EMBEDDED_PAGES__ = "<div class=\"page\">\n      <div class=\"page-toolb
     return;
   }
 
+  // 3) Contenido ya en el HTML
   if(pagesEl && pagesEl.innerHTML.trim()){
     ensureBinaryCloseButtons();
     upgradeSurveyRows();
@@ -7542,9 +7540,11 @@ window.__EMBEDDED_PAGES__ = "<div class=\"page\">\n      <div class=\"page-toolb
     return;
   }
 
+  // 4) Primera apertura vacía
   loadRealTestData();
   stripExecConclusions();
 })();
+
 
 
 </script>
