@@ -152,7 +152,6 @@ h1.doc-title{
 .section{
   margin-bottom:30px;
   padding-bottom:6px;
-  page-break-inside:avoid;
 }
 .section-head{
   display:flex;
@@ -432,17 +431,6 @@ h1.doc-title{
   margin:0 0 36px;
 }
 .summary-page .exec-stats{margin-top:8px; margin-bottom:36px;}
-.exec-summary{
-  background:#F7F7F7;
-  border-radius:10px;
-  padding:22px 26px;
-  font-size:14.5px;
-  line-height:1.65;
-  margin-bottom:8px;
-}
-.exec-summary p{margin:0 0 12px;}
-.exec-summary p:last-child{margin-bottom:0;}
-.exec-summary b{font-weight:700;}
 .exec-stats{
   display:flex;
   gap:14px;
@@ -459,33 +447,6 @@ h1.doc-title{
 }
 .exec-stat .num{font-size:26px; font-weight:800; color:var(--ink); line-height:1;}
 .exec-stat .lbl{font-size:11px; color:var(--muted); margin-top:6px;}
-
-.task-summary{
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:16px 44px 4px 18px;
-  margin-bottom:16px;
-  position:relative;
-}
-.task-summary-delete{
-  position:absolute;
-  top:10px;
-  right:10px;
-  z-index:1;
-}
-.task-summary-head .compliance-chip{
-  margin-right:8px;
-}
-.task-summary-head .title[contenteditable]:focus,
-.task-summary .n-count[contenteditable]:focus,
-.task-summary .recommendation[contenteditable]:focus,
-.csat-summary-row .q[contenteditable]:focus,
-.csat-summary-row .labels[contenteditable]:focus,
-.exec-stat .num[contenteditable]:focus,
-.exec-stat .lbl[contenteditable]:focus{
-  background:var(--accent-soft);
-  border-radius:4px;
-}
 .summary-page .section-head{cursor:default;}
 .summary-page .summary-sections{margin-bottom:8px;}
 .summary-section-footer{
@@ -499,16 +460,6 @@ h1.doc-title{
   top:8px;
   right:8px;
 }
-.task-summary-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:8px;
-  flex-wrap:wrap;
-  padding-right:4px;
-}
-.task-summary-head .title{font-weight:700; font-size:14px;}
 .compliance-chip{
   font-size:11px;
   font-weight:700;
@@ -519,30 +470,203 @@ h1.doc-title{
 .compliance-chip.ok{background:#E1F9EF; color:#00874E;}
 .compliance-chip.warn{background:#FFF1D6; color:#8A5700;}
 .compliance-chip.bad{background:#FFE1E6; color:#B10F30;}
-.task-summary .n-count{font-size:11px; color:var(--muted); margin:2px 0 14px;}
-.task-summary .criticidad-widget{background:transparent; padding:0; gap:16px; margin-top:6px;}
-.task-summary .recommendation{
-  font-size:12.5px;
-  color:var(--ink);
-  background:#F7F7F7;
-  border-radius:8px;
-  padding:10px 12px;
-  margin:12px 0 14px;
-}
-.task-summary .binary-avgs{
+.task-summary{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:30px;
+  margin-bottom:16px;
+  position:relative;
   display:flex;
-  flex-wrap:wrap;
-  gap:10px 18px;
-  margin:4px 0 14px;
-  font-size:12.5px;
-  color:var(--ink);
+  flex-direction:column;
+  gap:24px;
 }
-.task-summary .binary-avgs .ba-item{
+.task-summary-delete{
+  position:absolute;
+  top:14px;
+  right:14px;
+  z-index:1;
+}
+.task-summary-head{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:10px;
+  margin:0;
+  padding-right:28px;
+}
+.task-summary-head .title{
+  font-weight:700;
+  font-size:16px;
+  line-height:24px;
+  color:#1A1B29;
+  letter-spacing:.01em;
+}
+.task-summary .n-count{
+  font-size:12px;
+  line-height:18px;
+  color:#303244;
+  margin:0;
+}
+.task-summary-metrics{
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+  width:100%;
+}
+.task-metric{
+  flex:1;
+  min-width:0;
   background:#F7F7F7;
-  border-radius:8px;
-  padding:8px 12px;
+  border-radius:10px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  text-align:center;
 }
-.task-summary .binary-avgs b{font-weight:700;}
+.task-metric-label{
+  font-size:12px;
+  line-height:18px;
+  color:#1A1B29;
+  width:100%;
+}
+.task-metric-value{
+  font-size:18px;
+  font-weight:700;
+  line-height:1.3;
+  color:#45475B;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  min-height:24px;
+}
+.task-metric-value .face-icon{
+  width:18px;
+  height:18px;
+  display:block;
+  flex-shrink:0;
+  color:#303244;
+}
+.task-metric.is-crit .task-metric-value{
+  font-size:20px;
+  color:#303244;
+}
+.task-metric.is-nota .task-metric-value{
+  color:#303244;
+}
+.task-metric.is-crit[data-level="Nula"]{background:#D5F3E8;}
+.task-metric.is-crit[data-level="Bajo"]{background:#C2D5FD;}
+.task-metric.is-crit[data-level="Medio"]{background:#EDEDD3;}
+.task-metric.is-crit[data-level="Alto"]{background:#FEE2E2;}
+.task-metric.is-nota[data-nota="1"]{background:#FECCCC;}
+.task-metric.is-nota[data-nota="2"]{background:#FFE3D2;}
+.task-metric.is-nota[data-nota="3"]{background:#EDEDD3;}
+.task-metric.is-nota[data-nota="4"]{background:#C2D5FD;}
+.task-metric.is-nota[data-nota="5"]{background:#D7F8DC;}
+.task-summary-obs{
+  display:flex;
+  gap:9px;
+  align-items:stretch;
+  padding:0 6px;
+  color:#303244;
+}
+.task-summary-obs-bar{
+  width:2px;
+  flex-shrink:0;
+  background:#DCE1EC;
+  border-radius:2px;
+  align-self:stretch;
+}
+.task-summary-obs-body{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.task-summary-obs-title{
+  font-size:14px;
+  font-weight:700;
+  line-height:21px;
+}
+.task-summary-obs-text{
+  font-size:12px;
+  line-height:18px;
+  color:#303244;
+}
+/* legacy chips ocultos si quedan en HTML guardado */
+.task-summary .compliance-chip,
+.task-summary .binary-avgs,
+.task-summary .criticidad-widget,
+.task-summary .recommendation,
+.task-summary .obs-details{display:none;}
+
+.exec-summary-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.exec-summary{
+  background:#F7F7F7;
+  border-radius:10px;
+  padding:22px 26px;
+  font-size:14.5px;
+  line-height:1.65;
+  margin-bottom:0;
+}
+.exec-summary p{margin:0 0 12px;}
+.exec-summary p:last-child{margin-bottom:0;}
+.exec-summary b{font-weight:700;}
+.exec-conclusions{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:24px 26px;
+}
+.exec-conclusions-title{
+  font-size:16px;
+  font-weight:700;
+  color:#1A1B29;
+  margin:0 0 10px;
+  line-height:24px;
+}
+.exec-conclusions-body{
+  font-size:14px;
+  line-height:1.6;
+  color:#303244;
+  min-height:72px;
+}
+.exec-conclusions-body:empty:before{
+  content:attr(data-placeholder);
+  color:#B7BECF;
+}
+
+.task-summary-head .title[contenteditable]:focus,
+.task-summary .n-count[contenteditable]:focus,
+.task-metric-label[contenteditable]:focus,
+.task-metric-value[contenteditable]:focus,
+.task-summary-obs-title[contenteditable]:focus,
+.task-summary-obs-text[contenteditable]:focus,
+.csat-summary-row .q[contenteditable]:focus,
+.csat-summary-row .labels[contenteditable]:focus,
+.exec-stat .num[contenteditable]:focus,
+.exec-stat .lbl[contenteditable]:focus,
+.exec-conclusions-title[contenteditable]:focus,
+.exec-conclusions-body[contenteditable]:focus,
+.exec-summary[contenteditable]:focus{
+  background:var(--accent-soft);
+  border-radius:4px;
+}
+@media (max-width:720px){
+  .task-summary-metrics{flex-wrap:wrap;}
+  .task-metric{flex:1 1 calc(50% - 10px);}
+}
+
 
 .csat-summary-row{
   display:flex;
@@ -554,7 +678,6 @@ h1.doc-title{
   margin-bottom:12px;
   position:relative;
 }
-.csat-summary-row .avg-face{font-size:30px; line-height:1;}
 .csat-summary-row .meta{flex:1;}
 .csat-summary-row .meta .q{font-weight:600; font-size:13.5px; margin-bottom:4px;}
 .csat-summary-row .meta .labels{font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace;}
@@ -567,47 +690,84 @@ h1.doc-title{
   flex-shrink:0;
 }
 
-/* Sí / No binarias (por tarea) */
+/* Sí / No binarias (por tarea) — layout 2 columnas como pantallazo */
 .task-binary{
-  margin:10px 0 6px;
-  padding:14px 16px;
-  background:#F7F7F7;
-  border-radius:10px;
+  margin:10px 0 14px;
+  padding:22px 40px 20px 20px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  position:relative;
+}
+.task-binary-close{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:28px;
+  height:28px;
+  border:none;
+  background:none;
+  padding:0;
   display:flex;
-  flex-direction:column;
-  gap:12px;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  font-size:16px;
+  line-height:1;
+  z-index:2;
+  border-radius:6px;
+}
+.task-binary-close:hover{
+  color:#C0392B;
+  background:#F7F7F7;
 }
 .binary-row{
   display:flex;
+  flex-direction:column;
   align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
+  justify-content:center;
+  text-align:center;
+  gap:14px;
+  padding:8px 20px;
+}
+.binary-row + .binary-row{
+  border-left:1px solid var(--border);
 }
 .binary-q{
+  font-size:14px;
+  font-weight:600;
+  color:var(--ink);
+  line-height:1.35;
+  max-width:260px;
+}
+.binary-opts{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+.binary-opt{
+  border:1px solid var(--border);
+  background:#F0F1F5;
+  border-radius:999px;
+  padding:8px 22px;
   font-size:13px;
   font-weight:600;
   color:var(--ink);
-  flex:1;
-  min-width:180px;
+  min-width:64px;
 }
-.binary-opts{display:flex; gap:8px;}
-.binary-opt{
-  border:1px solid var(--border);
-  background:#fff;
-  border-radius:999px;
-  padding:6px 16px;
-  font-size:12.5px;
-  font-weight:500;
-  color:var(--ink);
-  min-width:56px;
-}
-.binary-opt:hover{background:#F0F0F0; border-color:var(--ink);}
+.binary-opt:hover{background:#E4E6EE; border-color:#C5CAD6;}
 .binary-opt.selected{
   background:var(--ink);
   border-color:var(--ink);
   color:#fff;
-  font-weight:600;
+  font-weight:700;
+}
+@media (max-width:640px){
+  .task-binary{grid-template-columns:1fr; padding-right:20px;}
+  .binary-row + .binary-row{border-left:none; border-top:1px solid var(--border); padding-top:18px; margin-top:8px;}
 }
 
 /* Cajas de observaciones / conclusiones con formato */
@@ -688,16 +848,16 @@ h1.doc-title{
 
 .survey-row{
   border:none;
-  border-radius:10px;
-  padding:16px 18px;
-  margin-bottom:16px;
+  border-radius:0;
+  padding:0;
+  margin-bottom:28px;
   position:relative;
-  background:#F7F7F7;
+  background:transparent;
 }
 .survey-row-close{
   position:absolute;
-  top:8px;
-  right:8px;
+  top:0;
+  right:0;
   width:36px;
   height:36px;
   border:none;
@@ -707,50 +867,143 @@ h1.doc-title{
   justify-content:center;
   padding:0;
   opacity:.85;
+  z-index:2;
 }
 .survey-row-close:hover{opacity:1;}
 .survey-row-close svg{display:block; width:36px; height:36px;}
 .survey-question{
   font-weight:600;
-  font-size:13.5px;
-  margin-bottom:12px;
+  font-size:14px;
+  margin:0 40px 12px 0;
+  line-height:1.35;
+  color:var(--ink);
+}
+.faces-card{
+  background:#E7E7E7;
+  border:none;
+  border-radius:16px;
+  padding:24px 32px 20px;
 }
 .faces{
   display:flex;
-  align-items:center;
+  align-items:stretch;
   justify-content:space-between;
   gap:8px;
+  width:100%;
 }
-.face-labels-edit{
+.face-option{
+  flex:1;
+  min-width:0;
   display:flex;
-  justify-content:space-between;
-  font-size:11px;
-  color:var(--muted);
-  margin-top:8px;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
 }
-.face-labels-edit [contenteditable]{
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;
-  min-width:60px;
-}
-.face-labels-edit .right{text-align:right;}
 .face-btn{
-  border:1px solid var(--border);
-  background:#fff;
+  border:none;
+  background:transparent;
   border-radius:50%;
-  width:44px;
-  height:44px;
-  font-size:20px;
+  width:40px;
+  height:40px;
+  padding:0;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:0;
+  transition:transform .2s ease, color .2s ease, filter .2s ease;
+  color:#9AA3B5;
+}
+.face-btn .face-icon{
+  width:40px;
+  height:40px;
+  display:block;
+  pointer-events:none;
+}
+.face-btn[data-value="1"]{color:#E93939;}
+.face-btn[data-value="2"]{color:#D6570E;}
+.face-btn[data-value="3"]{color:#B4B108;}
+.face-btn[data-value="4"]{color:#155BEB;}
+.face-btn[data-value="5"]{color:#029818;}
+.face-btn:hover{
+  transform:scale(1.08);
+  filter:brightness(.92);
+  background:transparent;
+  border-color:transparent;
 }
 .face-btn.selected{
-  background:var(--accent);
-  border-color:var(--accent);
-  transform:scale(1.08);
+  color:#0F202B !important;
+  background:transparent !important;
+  border:none !important;
+  transform:scale(1.12);
+  filter:none;
 }
+.face-btn:focus,
+.face-btn:focus-visible{
+  outline:2px solid #0F202B;
+  outline-offset:2px;
+  background:transparent;
+}
+.face-btn.anim-bounce{
+  animation:faceBounce .55s cubic-bezier(.34,1.56,.64,1);
+}
+.face-btn.anim-shake{
+  animation:faceShake .5s ease;
+}
+.face-btn.anim-pulse{
+  animation:facePulse .45s ease;
+}
+@keyframes faceBounce{
+  0%{transform:scale(.85) translateY(4px);}
+  45%{transform:scale(1.22) translateY(-6px);}
+  70%{transform:scale(.96) translateY(1px);}
+  100%{transform:scale(1.12) translateY(0);}
+}
+@keyframes faceShake{
+  0%,100%{transform:scale(1.12) rotate(0);}
+  20%{transform:scale(1.14) rotate(-10deg);}
+  40%{transform:scale(1.14) rotate(10deg);}
+  60%{transform:scale(1.14) rotate(-7deg);}
+  80%{transform:scale(1.12) rotate(4deg);}
+}
+@keyframes facePulse{
+  0%{transform:scale(.9);}
+  50%{transform:scale(1.18);}
+  100%{transform:scale(1.12);}
+}
+.face-label{
+  font-size:11px;
+  font-weight:500;
+  color:var(--muted);
+  text-align:center;
+  line-height:1.25;
+  min-height:28px;
+  width:100%;
+  max-width:88px;
+  padding:2px 2px;
+  border-radius:4px;
+}
+.face-label:focus{
+  background:var(--accent-soft);
+  color:var(--ink);
+}
+/* compat: etiquetas antiguas left/right */
+.face-labels-edit{display:none;}
+
+.avg-face{
+  width:40px;
+  height:40px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#0F202B;
+}
+.avg-face .face-icon{width:36px; height:36px; display:block;}
+.avg-face[data-value="1"]{color:#E93939;}
+.avg-face[data-value="2"]{color:#D6570E;}
+.avg-face[data-value="3"]{color:#B4B108;}
+.avg-face[data-value="4"]{color:#155BEB;}
+.avg-face[data-value="5"]{color:#029818;}
+
 
 .section-footer-actions{
   display:flex;
@@ -848,20 +1101,84 @@ h1.doc-title{
     print-color-adjust:exact !important;
     color-adjust:exact !important;
   }
-  body{background:#fff; padding:0; margin:0;}
-  .toolbar, .no-print{display:none !important;}
-  .page{
-    box-shadow:none;
-    border:none;
-    border-radius:0;
-    max-width:none;
-    margin:0;
-    padding:14mm 16mm;
-    page-break-after:always;
+  html, body{
+    background:#fff !important;
+    padding:0 !important;
+    margin:0 !important;
+    height:auto !important;
+    overflow:visible !important;
   }
-  .page:last-child{page-break-after:auto;}
+  .toolbar, .no-print{display:none !important;}
+  #pages{
+    display:block !important;
+    height:auto !important;
+    overflow:visible !important;
+  }
+  .page{
+    box-shadow:none !important;
+    border:none !important;
+    border-radius:0 !important;
+    max-width:none !important;
+    width:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    height:auto !important;
+    overflow:visible !important;
+    page-break-after:always;
+    break-after:page;
+    page-break-inside:auto;
+    break-inside:auto;
+  }
+  .page:last-child{
+    page-break-after:auto;
+    break-after:auto;
+  }
+  /* Las secciones largas deben poder partirse entre hojas */
+  .section,
+  .sections,
+  .qa-list,
+  .summary-tasks,
+  .summary-csat-wrap,
+  .rich-editor,
+  .obs-field{
+    page-break-inside:auto !important;
+    break-inside:auto !important;
+    overflow:visible !important;
+    height:auto !important;
+    max-height:none !important;
+  }
+  /* Evitar cortes solo en bloques chicos (una pregunta, Sí/No, criticidad, etc.) */
+  .profile,
+  .qa-row,
+  .task-binary,
+  .task-eval,
+  .survey-row,
+  .faces-card,
+  .task-summary,
+  .task-metric,
+  .exec-conclusions,
+  .csat-summary-row,
+  .exec-stats,
+  .section-head{
+    page-break-inside:avoid;
+    break-inside:avoid;
+  }
+  .section-head{
+    page-break-after:avoid;
+    break-after:avoid;
+  }
+  details.obs-details{
+    overflow:visible !important;
+  }
+  details.obs-details[open] > summary,
+  details.obs-details > summary{
+    page-break-after:avoid;
+  }
   [data-placeholder]:empty:before{color:transparent;}
-  @page{size:A4; margin:0;}
+  @page{
+    size:A4;
+    margin:14mm 16mm;
+  }
 }
 </style>
 </head>
@@ -869,11 +1186,11 @@ h1.doc-title{
 
 <div class="toolbar no-print">
   <button class="primary" onclick="addParticipant()">+ Nuevo entrevistado</button>
-  <button onclick="confirmLoadRealTestData()">Cargar respuestas</button>
   <button onclick="generateSummary()">Generar resumen</button>
   <button onclick="window.print()">Exportar a PDF</button>
+  <button onclick="downloadFilledHtml()">Descargar HTML</button>
   <div class="spacer"></div>
-  <small>Edita el título y las secciones de la primera hoja para armar la plantilla. "+ Nuevo entrevistado" clona esa estructura en blanco para cada persona evaluada. Los datos se guardan automáticamente en este navegador.</small>
+  <small>Los cambios se guardan en este navegador. Usa “Descargar HTML” para enviar el archivo con todo lo escrito a otra persona.</small>
   <button class="ghost" onclick="clearSavedState()">Borrar todo</button>
 </div>
 
@@ -982,15 +1299,16 @@ function makeSection(title="Nueva sección"){
     </div>
     <div class="qa-list"></div>
     <div class="task-binary">
+      <button type="button" class="task-binary-close no-print" onclick="confirmDeleteBinary(this)" title="Eliminar preguntas Sí/No">✕</button>
       <div class="binary-row">
-        <span class="binary-q">¿Entendió el objetivo del bloque?</span>
+        <span class="binary-q" contenteditable="true">¿Entendió el objetivo del bloque?</span>
         <div class="binary-opts" data-key="entendio">
           <button type="button" class="binary-opt" data-value="1" onclick="selectBinary(this)">Sí</button>
           <button type="button" class="binary-opt" data-value="0" onclick="selectBinary(this)">No</button>
         </div>
       </div>
       <div class="binary-row">
-        <span class="binary-q">¿Encontró la sección?</span>
+        <span class="binary-q" contenteditable="true">¿Encontró la sección?</span>
         <div class="binary-opts" data-key="encontro">
           <button type="button" class="binary-opt" data-value="1" onclick="selectBinary(this)">Sí</button>
           <button type="button" class="binary-opt" data-value="0" onclick="selectBinary(this)">No</button>
@@ -1027,7 +1345,7 @@ function makeSection(title="Nueva sección"){
             <span class="zone-label alto" style="left:22%">Alto<small>0–49%</small></span>
             <span class="zone-label medio" style="left:55%">Medio<small>50–69%</small></span>
             <span class="zone-label bajo" style="left:77%">Bajo<small>70–99%</small></span>
-            <span class="zone-label nulo" style="left:95%">Nulo<small>100%</small></span>
+            <span class="zone-label nulo" style="left:95%">Nula<small>100%</small></span>
           </div>
           <div class="criticidad-track">
             <div class="segment seg-alto"></div>
@@ -1056,10 +1374,44 @@ function addQuestion(btn){
   section.querySelector('.qa-list').appendChild(makeQARow());
 }
 
-function makeSurveyRow(question="¿Qué tan claro fue esto?", left="Muy poco claro", right="Muy claro"){
+function faceIconSvg(value){
+  const v = String(value);
+  // Iconos exportados de Figma (node 265:77) — color vía currentColor
+  if(v === '1'){
+    return `<svg class="face-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19.9993 40C17.7892 40.0017 15.5941 39.6345 13.5039 38.9171C13.4702 38.907 13.4348 38.8952 13.4012 38.8817C11.4976 38.2131 9.70697 37.2616 8.08827 36.0574C8.01078 36.0103 7.93834 35.9564 7.87265 35.8941C3.40844 32.4904 0.580363 27.3674 0.080124 21.7777C-0.421884 16.1863 1.45134 10.644 5.24165 6.50072C9.03019 2.35773 14.3853 0 20 0C25.6148 0 30.9699 2.35781 34.7584 6.50072C38.5486 10.6437 40.4219 16.1863 39.9199 21.7777C39.4196 27.3674 36.5912 32.4907 32.1274 35.8941C32.0617 35.9564 31.9892 36.0103 31.9117 36.0574C30.2929 37.2616 28.5023 38.2131 26.5989 38.8817C26.5652 38.8952 26.5298 38.907 26.4961 38.9171C24.4056 39.6362 22.2106 40.0017 20.0007 40H19.9993ZM15.2422 36.6401C18.3553 37.5058 21.6436 37.5058 24.7563 36.6401V19.6826C24.4985 19.6304 24.261 19.5024 24.0757 19.3154C23.8214 19.0628 23.6799 18.7209 23.6799 18.3639C23.6799 18.0069 23.8214 17.6633 24.0757 17.4107L24.9989 16.4878H24.9972C27.0489 14.5308 30.2782 14.5308 32.33 16.4878L33.2531 17.4107H33.2514C33.6035 17.7627 33.7332 18.2797 33.5883 18.7563C33.4435 19.2313 33.0476 19.59 32.5591 19.6859V31.8924C35.6789 28.6016 37.3821 24.2159 37.301 19.6825C37.2199 15.1491 35.3621 10.8273 32.1261 7.65112C28.8901 4.47315 24.5354 2.69129 19.9992 2.69129C15.463 2.69129 11.1083 4.4731 7.87227 7.65112C4.63628 10.8274 2.77845 15.1491 2.69738 19.6825C2.6163 24.2159 4.31957 28.6019 7.4393 31.8924V19.6859C6.95079 19.5899 6.55491 19.2312 6.41006 18.7563C6.26519 18.2797 6.3949 17.7627 6.74697 17.4107L7.67008 16.4878H7.6684C9.72015 14.5308 12.9494 14.5308 15.0012 16.4878L15.9243 17.4107H15.9226C16.177 17.6633 16.3185 18.0069 16.3185 18.3639C16.3185 18.7209 16.177 19.0628 15.9226 19.3154C15.7373 19.5024 15.4998 19.6304 15.2421 19.6826L15.2422 36.6401ZM27.4515 17.9783V35.6162C28.2921 35.2137 29.099 34.7438 29.8638 34.2116V17.9715C29.1108 17.5689 28.2045 17.5707 27.4515 17.9783ZM10.1346 34.2115C10.8994 34.7437 11.7063 35.2136 12.5469 35.6161V17.9782C11.7939 17.5706 10.8876 17.5673 10.1346 17.9714V34.2115ZM22.5648 29.7872C22.2413 29.7889 21.9263 29.671 21.6821 29.4571C20.7034 28.6571 19.295 28.6571 18.3163 29.4571C17.7537 29.9455 16.903 29.8849 16.4162 29.324C15.9277 28.7615 15.9883 27.9111 16.5493 27.4226C18.5522 25.7705 21.446 25.7705 23.4491 27.4226C23.8736 27.7915 24.0236 28.386 23.8265 28.9114C23.6311 29.4385 23.1274 29.7872 22.5648 29.7872ZM29.6582 14.1937C27.6468 14.1937 25.7012 13.4847 24.1599 12.193C23.887 11.9623 23.7152 11.6338 23.6831 11.2768C23.6528 10.9215 23.764 10.5661 23.9948 10.2933C24.2256 10.0188 24.5541 9.8487 24.9112 9.81667C25.2666 9.78636 25.622 9.89919 25.8949 10.1299C26.9494 11.0141 28.2819 11.4991 29.6582 11.4991C30.4011 11.4991 31.0058 12.102 31.0058 12.8464C31.0058 13.5908 30.4011 14.1937 29.6582 14.1937ZM10.3399 14.1937C9.59704 14.1937 8.99231 13.5908 8.99231 12.8464C8.99231 12.102 9.59704 11.4991 10.3399 11.4991C11.7162 11.4991 13.0487 11.0141 14.1032 10.1299C14.6726 9.64991 15.5233 9.72401 16.0017 10.2933C16.4818 10.8642 16.4076 11.713 15.8383 12.1929C14.2969 13.4847 12.3513 14.1937 10.3399 14.1937Z" fill="currentColor"/></svg>`;
+  }
+  if(v === '2'){
+    return `<svg class="face-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 0C8.96345 0 0 8.96345 0 20C0 31.0366 8.96345 40 20 40C31.0366 40 40 31.0366 40 20C40 8.96345 31.0366 0 20 0ZM20 36.9231C10.6673 36.9231 3.07692 29.3327 3.07692 20C3.07692 10.6673 10.6673 3.07692 20 3.07692C29.3327 3.07692 36.9231 10.6673 36.9231 20C36.9231 29.3327 29.3327 36.9231 20 36.9231ZM28.0827 25.9077C28.6769 26.5019 28.6769 27.4865 28.0827 28.0827C27.775 28.3904 27.3846 28.5346 26.9962 28.5346C26.6058 28.5346 26.2174 28.3904 25.9097 28.0827C24.35 26.5231 22.1962 25.6423 20.002 25.6423C17.8078 25.6423 15.6539 26.5442 14.0943 28.0827C13.5001 28.6769 12.5154 28.6769 11.9193 28.0827C11.325 27.4885 11.325 26.5039 11.9193 25.9077C14.0519 23.775 17.0058 22.5634 20.002 22.5634C22.9962 22.5634 25.9712 23.7942 28.0847 25.9077H28.0827ZM23.5904 15.8981V13.8462C23.5904 13.0058 24.2885 12.3077 25.1289 12.3077C25.9692 12.3077 26.6673 13.0058 26.6673 13.8462V15.8981C26.6673 16.7385 25.9692 17.4366 25.1289 17.4366C24.2885 17.4366 23.5904 16.7385 23.5904 15.8981ZM13.3327 15.8981V13.8462C13.3327 13.0058 14.0308 12.3077 14.8711 12.3077C15.7115 12.3077 16.4096 13.0058 16.4096 13.8462V15.8981C16.4096 16.7385 15.7115 17.4366 14.8711 17.4366C14.0308 17.4366 13.3327 16.7385 13.3327 15.8981Z" fill="currentColor"/></svg>`;
+  }
+  if(v === '3'){
+    return `<svg class="face-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 39.9999C14.6956 39.9999 9.60831 37.8928 5.85791 34.142C2.10751 30.3912 0 25.304 0 19.9999C0 14.6959 2.10706 9.60828 5.85791 5.8579C9.60876 2.10751 14.696 0 20 0C25.304 0 30.3917 2.10706 34.1421 5.8579C37.8925 9.60873 40 14.6959 40 19.9999C40 23.5107 39.076 26.9596 37.3205 30.0001C35.5651 33.0404 33.0402 35.5651 30.0001 37.3205C26.9596 39.076 23.5107 40 19.9999 40L20 39.9999ZM20 2.49976C15.3586 2.49976 10.9077 4.34357 7.62567 7.62528C4.3438 10.9073 2.50014 15.3582 2.50014 19.9996C2.50014 24.641 4.34395 29.0919 7.62567 32.3739C10.9077 35.6557 15.3586 37.4994 20 37.4994C24.6414 37.4994 29.0923 35.6556 32.3743 32.3739C35.6562 29.0919 37.4999 24.641 37.4999 19.9996C37.4999 16.9276 36.6913 13.9099 35.1552 11.2497C33.6193 8.58922 31.4102 6.3799 28.7498 4.84427C26.0895 3.30822 23.0719 2.49965 19.9999 2.49965L20 2.49976Z" fill="currentColor"/><path d="M26.2502 28.751H13.7498C13.3034 28.751 12.8907 28.5128 12.6673 28.1261C12.4441 27.7393 12.4441 27.2629 12.6673 26.876C12.8907 26.4893 13.3034 26.2511 13.7498 26.2511H26.2502C26.6966 26.2511 27.1093 26.4893 27.3327 26.876C27.5559 27.2629 27.5559 27.7393 27.3327 28.1261C27.1093 28.5128 26.6966 28.751 26.2502 28.751Z" fill="currentColor"/><path d="M15.0001 17.501H9.99983C9.55335 17.501 9.1407 17.2628 8.91731 16.8761C8.69407 16.4893 8.69407 16.0129 8.91731 15.626C9.1407 15.2393 9.55335 15.0011 9.99983 15.0011H15.0001C15.4466 15.0011 15.8592 15.2393 16.0826 15.626C16.3059 16.0129 16.3059 16.4893 16.0826 16.8761C15.8592 17.2628 15.4466 17.501 15.0001 17.501Z" fill="currentColor"/><path d="M30.0002 17.501H25C24.5535 17.501 24.1408 17.2628 23.9174 16.8761C23.6942 16.4893 23.6942 16.0129 23.9174 15.626C24.1408 15.2393 24.5535 15.0011 25 15.0011H30.0002C30.4467 15.0011 30.8594 15.2393 31.0828 15.626C31.306 16.0129 31.306 16.4893 31.0828 16.8761C30.8594 17.2628 30.4467 17.501 30.0002 17.501Z" fill="currentColor"/></svg>`;
+  }
+  if(v === '4'){
+    return `<svg class="face-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M26.4657 18.5839C27.3804 18.5839 28.1218 17.4554 28.1218 16.0656C28.1218 14.6757 27.3819 13.5472 26.4657 13.5472C25.5496 13.5472 24.8081 14.6757 24.8081 16.0656C24.8081 17.4554 25.5511 18.5839 26.4657 18.5839Z" fill="currentColor"/><path d="M31.0793 24.1697C30.64 23.9197 30.0945 24.1046 29.8626 24.5828C29.5864 25.1528 26.9751 30.1587 19.969 30.3955C13.1325 30.6128 10.2646 24.8476 10.1406 24.588C9.91198 24.1095 9.37135 23.9184 8.92869 24.1666C8.48612 24.4146 8.31141 25.0012 8.53845 25.4828C8.67391 25.7669 11.8833 32.3568 19.5639 32.3568C19.7158 32.3549 19.8677 32.3517 20.0245 32.347C27.8882 32.0824 30.9308 26.5885 31.4616 25.4894C31.6919 25.0108 31.5203 24.4196 31.0793 24.1697Z" fill="currentColor"/><path d="M19.9999 0C8.9711 0 0 8.97264 0 19.9999C0 31.0272 8.9711 40 19.9999 40C31.0289 40 40 31.0274 40 19.9999C40 8.97264 31.0289 0 19.9999 0ZM19.9999 37.6349C10.276 37.6349 2.36481 29.7239 2.36481 19.9999C2.36481 10.276 10.276 2.36489 19.9999 2.36489C29.724 2.36489 37.635 10.276 37.635 19.9999C37.635 29.7239 29.724 37.6349 19.9999 37.6349Z" fill="currentColor"/><path d="M13.6763 18.5839C14.5908 18.5839 15.3339 17.4554 15.3339 16.0656C15.3339 14.6757 14.5908 13.5472 13.6763 13.5472C12.7616 13.5472 12.0186 14.6757 12.0186 16.0656C12.0186 17.4554 12.7616 18.5839 13.6763 18.5839Z" fill="currentColor"/></svg>`;
+  }
+  return `<svg class="face-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 0C8.93333 0 0 8.93333 0 20C0 31.0667 8.93333 40 20 40C31.0667 40 40 31.0667 40 20C40 8.93333 31.0667 0 20 0ZM20 37.3333C10.4444 37.3333 2.66667 29.5556 2.66667 20C2.66667 10.4444 10.4444 2.66667 20 2.66667C29.5556 2.66667 37.3333 10.4444 37.3333 20C37.3333 29.5556 29.5556 37.3333 20 37.3333ZM32.0444 25.8222L7.95556 25.7778C7.64444 25.7778 7.33333 25.9556 7.2 26.2222C7.02222 26.4889 7.02222 26.8444 7.2 27.1111C9.73333 31.7778 14.6667 34.6667 20 34.6667C25.3333 34.6667 30.2222 31.7778 32.8444 27.1111C32.9778 26.8444 32.9778 26.4889 32.8444 26.2222C32.7111 25.9556 32.3556 25.8222 32.0444 25.8222ZM20 32.8889C15.8222 32.8889 11.9556 30.8889 9.55556 27.5556H30.4444C28 30.8889 24.1333 32.8889 20 32.8889ZM7.37778 18.8889C6.88889 18.8 6.57778 18.3111 6.71111 17.8222C6.8 17.3333 7.28889 17.0222 7.77778 17.1556L14 18.4889C14.0444 18.4889 14.1333 18.5333 14.1778 18.5333C14.2222 18.5333 14.2222 18.5778 14.2222 18.5778C14.2667 18.5778 14.2667 18.6222 14.3111 18.6222C14.3556 18.6222 14.3556 18.6667 14.3556 18.6667C14.4 18.6667 14.4 18.7111 14.4444 18.7111C14.4444 18.7111 14.4889 18.7556 14.4889 18.8L14.5333 18.8444C14.5778 18.8889 14.5778 18.9333 14.6222 18.9778C14.6222 19.0222 14.6667 19.0667 14.6667 19.1556C14.6667 19.2 14.6667 19.2 14.6667 19.2444C14.6667 19.2889 14.6667 19.2889 14.6667 19.3333C14.6667 19.3778 14.6667 19.4667 14.6667 19.5111C14.6667 19.5111 14.6667 19.5111 14.6667 19.5556C14.6667 19.6 14.6222 19.6444 14.6222 19.6889V19.7333C14.6222 19.7778 14.5778 19.8222 14.5778 19.8222L14.5333 19.8667C14.5333 19.9111 14.4889 19.9111 14.4889 19.9556L14.4444 20C14.4 20.0444 14.4 20.0444 14.3556 20.0444L14.3111 20.0889C14.2667 20.0889 14.2667 20.1333 14.2222 20.1333C14.2222 20.1333 14.2222 20.1333 14.1778 20.1333L9.73333 21.9111C9.64444 21.9556 9.51111 21.9556 9.42222 21.9556C9.06667 21.9556 8.75556 21.7333 8.57778 21.3778C8.4 20.9333 8.62222 20.4 9.06667 20.2222L10.8 19.5111L7.37778 18.8889ZM32.6222 18.8889L29.2444 19.6L30.9778 20.3111C31.4222 20.4889 31.6444 21.0222 31.4667 21.4667C31.3333 21.8222 30.9778 22.0444 30.6222 22.0444C30.5333 22.0444 30.4 22.0444 30.3111 22L25.8667 20.2222H25.8222C25.7778 20.2222 25.7333 20.1778 25.7333 20.1778L25.6889 20.1333C25.6444 20.1333 25.6444 20.0889 25.6 20.0889L25.5556 20.0444C25.5111 20 25.5111 20 25.5111 19.9556L25.4667 19.9111C25.4667 19.8667 25.4222 19.8222 25.4222 19.8222V19.7778C25.4222 19.7333 25.3778 19.6889 25.3778 19.6444C25.3778 19.6 25.3778 19.5556 25.3778 19.4667C25.3778 19.4222 25.3778 19.4222 25.3778 19.3778C25.3778 19.3333 25.3778 19.3333 25.3778 19.2889C25.3778 19.2444 25.4222 19.2 25.4222 19.1556C25.4222 19.1111 25.4667 19.0667 25.5111 19.0222C25.5111 18.9778 25.5556 18.9778 25.5556 18.9333L25.6 18.8889C25.6444 18.8444 25.6444 18.8444 25.6889 18.8L25.7333 18.7556C25.7778 18.7111 25.8222 18.7111 25.8667 18.6667C25.9111 18.6222 26 18.6222 26.0444 18.6222L32.2667 17.2889C32.7556 17.2 33.2 17.5111 33.3333 17.9556C33.4222 18.3111 33.1111 18.7556 32.6222 18.8889Z" fill="currentColor"/></svg>`;
+}
+
+function defaultFaceLabels(left, right){
+  return [
+    left || 'Nada',
+    'Poco',
+    'Neutral',
+    'Bastante',
+    right || 'Mucho'
+  ];
+}
+
+function makeSurveyRow(question="¿Qué tan claro fue esto?", left="Muy poco claro", right="Muy claro", labels){
   const row = document.createElement('div');
   row.className = 'survey-row';
   const faceUid = uid();
+  const labs = (labels && labels.length === 5) ? labels : defaultFaceLabels(left, right);
+  const facesHtml = [1,2,3,4,5].map(v => `
+      <div class="face-option">
+        <button type="button" class="face-btn" onclick="selectFace(this)" data-value="${v}" aria-label="${escapeHtml(labs[v-1])}">${faceIconSvg(v)}</button>
+        <div class="face-label" contenteditable="true" data-placeholder="Etiqueta...">${escapeHtml(labs[v-1])}</div>
+      </div>`).join('');
   row.innerHTML = `
     <button class="ghost no-print survey-row-close" onclick="this.closest('.survey-row').remove()" title="Eliminar pregunta"><svg width="36" height="36" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="30" height="30" rx="15" fill="#F7F7F7"/>
@@ -1073,32 +1425,52 @@ function makeSurveyRow(question="¿Qué tan claro fue esto?", left="Muy poco cla
 </defs>
 </svg></button>
     <div class="survey-question" contenteditable="true" data-placeholder="Pregunta de la encuesta...">${escapeHtml(question)}</div>
-    <div class="faces" data-group="${faceUid}">
-      <button class="face-btn no-print-disable" onclick="selectFace(this)" data-value="1">😞</button>
-      <button class="face-btn" onclick="selectFace(this)" data-value="2">🙁</button>
-      <button class="face-btn" onclick="selectFace(this)" data-value="3">😐</button>
-      <button class="face-btn" onclick="selectFace(this)" data-value="4">🙂</button>
-      <button class="face-btn" onclick="selectFace(this)" data-value="5">😄</button>
-    </div>
-    <div class="face-labels-edit">
-      <div class="left" contenteditable="true" data-placeholder="1 = ...">${escapeHtml(left)}</div>
-      <div class="right" contenteditable="true" data-placeholder="5 = ...">${escapeHtml(right)}</div>
+    <div class="faces-card">
+      <div class="faces" data-group="${faceUid}">${facesHtml}
+      </div>
     </div>
   `;
   return row;
 }
 
 function selectFace(btn){
-  const group = btn.parentElement;
-  group.querySelectorAll('.face-btn').forEach(b=>b.classList.remove('selected'));
+  const group = btn.closest('.faces') || btn.parentElement;
+  group.querySelectorAll('.face-btn').forEach(b => {
+    b.classList.remove('selected', 'anim-bounce', 'anim-shake', 'anim-pulse');
+  });
   btn.classList.add('selected');
+  const v = parseInt(btn.dataset.value, 10);
+  const anim = v <= 2 ? 'anim-shake' : (v >= 4 ? 'anim-bounce' : 'anim-pulse');
+  btn.classList.add(anim);
+  const clearAnim = () => btn.classList.remove('anim-bounce', 'anim-shake', 'anim-pulse');
+  btn.addEventListener('animationend', clearAnim, { once: true });
+  scheduleSave();
 }
 
 function getCriticidad(pct){
-  if(pct >= 100) return {label:'Nulo',  color:'#00D084'};
-  if(pct >= 70)  return {label:'Bajo',  color:'#1F31F6'};
-  if(pct >= 50)  return {label:'Medio', color:'#FFA200'};
-  return {label:'Alto', color:'#FC2D55'};
+  // Colores de fondo según Figma (nodes 265:3413–265:3564)
+  if(pct >= 100) return {label:'Nula',  color:'#029818', bg:'#D5F3E8'};
+  if(pct >= 70)  return {label:'Bajo',  color:'#155BEB', bg:'#C2D5FD'};
+  if(pct >= 50)  return {label:'Medio', color:'#8A8C1A', bg:'#EDEDD3'};
+  return {label:'Alto', color:'#C0392B', bg:'#FEE2E2'};
+}
+
+function pctToNota(pct){
+  if(pct >= 90) return 5;
+  if(pct >= 75) return 4;
+  if(pct >= 55) return 3;
+  if(pct >= 35) return 2;
+  return 1;
+}
+
+function notaBg(score){
+  return ({1:'#FECCCC', 2:'#FFE3D2', 3:'#EDEDD3', 4:'#C2D5FD', 5:'#D7F8DC'})[score] || '#F7F7F7';
+}
+
+function binaryValueLabel(values){
+  if(!values || values.length === 0) return 'N/A';
+  const yes = values.filter(v => v === 1).length;
+  return (yes / values.length) >= 0.5 ? 'Sí' : 'No';
 }
 
 // Convierte una posición visual en la barra (0-100%) al porcentaje real,
@@ -1216,18 +1588,30 @@ document.addEventListener('touchstart', startMarkerDrag, {passive:false});
 // ============================================================
 
 const COMPLIANCE_BY_LEVEL = {
+  'Nula':  {cls:'ok',   text:'Cumple'},
   'Nulo':  {cls:'ok',   text:'Cumple'},
   'Bajo':  {cls:'ok',   text:'Cumple'},
   'Medio': {cls:'warn', text:'Revisar'},
   'Alto':  {cls:'bad',  text:'No cumple'}
 };
 const RECOMMENDATION_BY_LEVEL = {
-  'Nulo':  'Sin fricciones detectadas en esta tarea. No se requieren cambios.',
-  'Bajo':  'Fricciones menores y puntuales. Ajustes opcionales, no bloqueantes.',
-  'Medio': 'Fricción moderada — conviene revisar y mejorar esta sección antes de lanzar.',
-  'Alto':  'Problema crítico de usabilidad — se recomienda rediseñar esta sección.'
+  'Nula':  'no hubo fricciones detectadas en esta tarea. No se requieren cambios',
+  'Nulo':  'no hubo fricciones detectadas en esta tarea. No se requieren cambios',
+  'Bajo':  'fricciones menores y puntuales. Ajustes opcionales, no bloqueantes',
+  'Medio': 'fricción moderada — conviene revisar y mejorar esta sección antes de lanzar',
+  'Alto':  'problema crítico de usabilidad — se recomienda rediseñar esta sección'
 };
-const FACE_BY_VALUE = {1:'😞', 2:'🙁', 3:'😐', 4:'🙂', 5:'😄'};
+const FACE_BY_VALUE = {
+  1: () => faceIconSvg(1),
+  2: () => faceIconSvg(2),
+  3: () => faceIconSvg(3),
+  4: () => faceIconSvg(4),
+  5: () => faceIconSvg(5)
+};
+function faceMarkup(value){
+  const v = Math.round(Math.min(5, Math.max(1, Number(value) || 3)));
+  return `<span class="avg-face" data-value="${v}">${faceIconSvg(v)}</span>`;
+}
 
 function buildStaticGauge(avgPct){
   const info = getCriticidad(avgPct);
@@ -1243,7 +1627,7 @@ function buildStaticGauge(avgPct){
         <span class="zone-label alto" style="left:22%">Alto<small>0–49%</small></span>
         <span class="zone-label medio" style="left:55%">Medio<small>50–69%</small></span>
         <span class="zone-label bajo" style="left:77%">Bajo<small>70–99%</small></span>
-        <span class="zone-label nulo" style="left:95%">Nulo<small>100%</small></span>
+            <span class="zone-label nulo" style="left:95%">Nula<small>100%</small></span>
       </div>
       <div class="criticidad-track">
         <div class="segment seg-alto"></div>
@@ -1262,14 +1646,124 @@ function makeEmptyTaskSummaryBlock(){
     <button type="button" class="ghost no-print task-summary-delete" onclick="this.closest('.task-summary').remove(); scheduleSave();" title="Eliminar bloque">✕</button>
     <div class="task-summary-head">
       <span class="title" contenteditable="true" data-placeholder="Nombre de la tarea">Nueva tarea</span>
-      <span class="compliance-chip ok" contenteditable="true">Cumple</span>
+      <div class="n-count" contenteditable="true" data-placeholder="Resumen corto de la tarea">0/0 Entrevistados evaluaron esta tarea</div>
     </div>
-    <div class="n-count" contenteditable="true" data-placeholder="Ej: 4/4 entrevistados evaluaron esta tarea">&nbsp;</div>
-    <div class="binary-avgs">
-      <div class="ba-item" contenteditable="true">¿Entendió el objetivo?: <b>—</b></div>
-      <div class="ba-item" contenteditable="true">¿Encontró la sección?: <b>—</b></div>
+    <div class="task-summary-metrics">
+      <div class="task-metric">
+        <div class="task-metric-label" contenteditable="true">¿Entendió el objetivo?</div>
+        <div class="task-metric-value" contenteditable="true">N/A</div>
+      </div>
+      <div class="task-metric">
+        <div class="task-metric-label" contenteditable="true">¿Encontró la sección?</div>
+        <div class="task-metric-value" contenteditable="true">N/A</div>
+      </div>
+      <div class="task-metric is-crit" data-level="Bajo">
+        <div class="task-metric-label" contenteditable="true">Nivel criticidad</div>
+        <div class="task-metric-value" contenteditable="true">Bajo</div>
+      </div>
+      <div class="task-metric is-nota" data-nota="3">
+        <div class="task-metric-label" contenteditable="true">Nota sección</div>
+        <div class="task-metric-value" contenteditable="true"><span>3 /</span>${faceIconSvg(3)}</div>
+      </div>
     </div>
-    <div class="recommendation" contenteditable="true" data-placeholder="Recomendación o conclusión...">&nbsp;</div>`;
+    <div class="task-summary-obs">
+      <div class="task-summary-obs-bar" aria-hidden="true"></div>
+      <div class="task-summary-obs-body">
+        <div class="task-summary-obs-title" contenteditable="true">Observaciones generales:</div>
+        <div class="task-summary-obs-text" contenteditable="true" data-placeholder="Escribe observaciones…">Escribe aquí las observaciones de esta tarea.</div>
+      </div>
+    </div>`;
+  return block;
+}
+
+function buildTaskSummaryBlock(t, N){
+  const block = document.createElement('div');
+  block.className = 'task-summary';
+  const entendio = binaryValueLabel(t.entendio);
+  const encontro = binaryValueLabel(t.encontro);
+
+  if(t.pctValues.length === 0){
+    block.innerHTML = `
+      <button type="button" class="ghost no-print task-summary-delete" onclick="this.closest('.task-summary').remove(); scheduleSave();" title="Eliminar bloque">✕</button>
+      <div class="task-summary-head">
+        <span class="title" contenteditable="true">${escapeHtml(t.title)}</span>
+        <div class="n-count" contenteditable="true">Ningún entrevistado evaluó el nivel de criticidad todavía.</div>
+      </div>
+      <div class="task-summary-metrics">
+        <div class="task-metric">
+          <div class="task-metric-label" contenteditable="true">¿Entendió el objetivo?</div>
+          <div class="task-metric-value" contenteditable="true">${escapeHtml(entendio)}</div>
+        </div>
+        <div class="task-metric">
+          <div class="task-metric-label" contenteditable="true">¿Encontró la sección?</div>
+          <div class="task-metric-value" contenteditable="true">${escapeHtml(encontro)}</div>
+        </div>
+        <div class="task-metric is-crit" data-level="Alto">
+          <div class="task-metric-label" contenteditable="true">Nivel criticidad</div>
+          <div class="task-metric-value" contenteditable="true">—</div>
+        </div>
+        <div class="task-metric is-nota" data-nota="1">
+          <div class="task-metric-label" contenteditable="true">Nota sección</div>
+          <div class="task-metric-value" contenteditable="true"><span>— /</span>${faceIconSvg(1)}</div>
+        </div>
+      </div>
+      <div class="task-summary-obs">
+        <div class="task-summary-obs-bar" aria-hidden="true"></div>
+        <div class="task-summary-obs-body">
+          <div class="task-summary-obs-title" contenteditable="true">Observaciones generales:</div>
+          <div class="task-summary-obs-text" contenteditable="true">Sin evaluaciones de criticidad todavía.</div>
+        </div>
+      </div>`;
+    return block;
+  }
+
+  const avg = t.pctValues.reduce((a,b)=>a+b,0) / t.pctValues.length;
+  const info = getCriticidad(avg);
+  const nota = pctToNota(avg);
+  const rec = RECOMMENDATION_BY_LEVEL[info.label] || '';
+  const subtitle = `${t.pctValues.length}/${N} Entrevistados evaluaron esta tarea, ${rec}`;
+
+  let obsParts = [];
+  t.questions.forEach(q => {
+    q.observations.forEach(o => {
+      obsParts.push(`${o.name}: ${o.text}`);
+    });
+  });
+  const obsText = obsParts.length
+    ? obsParts.join(' · ')
+    : `${subtitle}`;
+
+  block.innerHTML = `
+    <button type="button" class="ghost no-print task-summary-delete" onclick="this.closest('.task-summary').remove(); scheduleSave();" title="Eliminar bloque">✕</button>
+    <div class="task-summary-head">
+      <span class="title" contenteditable="true">${escapeHtml(t.title)}</span>
+      <div class="n-count" contenteditable="true">${escapeHtml(subtitle)}</div>
+    </div>
+    <div class="task-summary-metrics">
+      <div class="task-metric">
+        <div class="task-metric-label" contenteditable="true">¿Entendió el objetivo?</div>
+        <div class="task-metric-value" contenteditable="true">${escapeHtml(entendio)}</div>
+      </div>
+      <div class="task-metric">
+        <div class="task-metric-label" contenteditable="true">¿Encontró la sección?</div>
+        <div class="task-metric-value" contenteditable="true">${escapeHtml(encontro)}</div>
+      </div>
+      <div class="task-metric is-crit" data-level="${escapeHtml(info.label)}">
+        <div class="task-metric-label" contenteditable="true">Nivel criticidad</div>
+        <div class="task-metric-value" contenteditable="true">${escapeHtml(info.label)}</div>
+      </div>
+      <div class="task-metric is-nota" data-nota="${nota}">
+        <div class="task-metric-label" contenteditable="true">Nota sección</div>
+        <div class="task-metric-value" contenteditable="true"><span>${nota} /</span>${faceIconSvg(nota)}</div>
+      </div>
+    </div>
+    <div class="task-summary-obs">
+      <div class="task-summary-obs-bar" aria-hidden="true"></div>
+      <div class="task-summary-obs-body">
+        <div class="task-summary-obs-title" contenteditable="true">Observaciones generales:</div>
+        <div class="task-summary-obs-text" contenteditable="true">${escapeHtml(obsText)}</div>
+      </div>
+    </div>`;
   return block;
 }
 
@@ -1278,10 +1772,10 @@ function makeEmptyCsatSummaryRow(){
   row.className = 'csat-summary-row';
   row.innerHTML = `
     <button type="button" class="ghost no-print csat-delete" onclick="this.closest('.csat-summary-row').remove(); scheduleSave();" title="Eliminar fila">✕</button>
-    <div class="avg-face" contenteditable="true">😐</div>
+    ${faceMarkup(3)}
     <div class="meta">
       <div class="q" contenteditable="true" data-placeholder="Pregunta de encuesta">Nueva pregunta</div>
-      <div class="labels" contenteditable="true" data-placeholder="Etiquetas">Muy bajo — Muy alto</div>
+      <div class="labels" contenteditable="true" data-placeholder="Etiquetas">Nada — Mucho</div>
     </div>
     <div class="avg-num" contenteditable="true">—/5</div>`;
   return row;
@@ -1379,13 +1873,15 @@ function generateSummary(){
     // Encuesta CSAT
     page.querySelectorAll('.survey-row').forEach((row, si) => {
       const qEl = row.querySelector('.survey-question');
-      const leftEl = row.querySelector('.face-labels-edit .left');
-      const rightEl = row.querySelector('.face-labels-edit .right');
+      const labelEls = row.querySelectorAll('.face-label');
+      const leftEl = labelEls[0] || row.querySelector('.face-labels-edit .left');
+      const rightEl = labelEls[4] || row.querySelector('.face-labels-edit .right');
       const selected = row.querySelector('.face-btn.selected');
       if(!surveyMap[si]) surveyMap[si] = {
         question: qEl ? qEl.textContent.trim() : ('Pregunta ' + (si+1)),
         left: leftEl ? leftEl.textContent.trim() : '',
         right: rightEl ? rightEl.textContent.trim() : '',
+        labels: labelEls.length ? Array.from(labelEls).map(el => el.textContent.trim()) : [],
         values: []
       };
       if(selected) surveyMap[si].values.push(parseFloat(selected.dataset.value));
@@ -1417,7 +1913,7 @@ function generateSummary(){
     overallPct = taskAverages.reduce((a,b)=>a+b.avg,0) / taskAverages.length;
     overallInfo = getCriticidad(overallPct);
 
-    const byLevel = {Nulo:0, Bajo:0, Medio:0, Alto:0};
+    const byLevel = {Nula:0, Bajo:0, Medio:0, Alto:0};
     taskAverages.forEach(t => byLevel[getCriticidad(t.avg).label]++);
 
     const sorted = [...taskAverages].sort((a,b)=>a.avg-b.avg);
@@ -1430,80 +1926,27 @@ function generateSummary(){
 
     execHtml += `<p>Se analizaron <b>${N} entrevistado${N===1?'':'s'}</b> sobre <b>${taskAverages.length} tarea${taskAverages.length===1?'':'s'}</b> evaluada${taskAverages.length===1?'':'s'}. El nivel de criticidad promedio general es <b style="color:${overallInfo.color}">${overallInfo.label} (${Math.round(overallPct)}%)</b>.</p>`;
     execHtml += `<p>Distribución de tareas por nivel: `;
-    execHtml += ['Nulo','Bajo','Medio','Alto'].filter(l=>byLevel[l]>0).map(l=>`${byLevel[l]} en ${l}`).join(' · ');
+    execHtml += ['Nula','Bajo','Medio','Alto'].filter(l=>byLevel[l]>0).map(l=>`${byLevel[l]} en ${l}`).join(' · ');
     execHtml += `.</p>`;
     if(weakest && strongest && weakest.title !== strongest.title){
       execHtml += `<p>La tarea con <b>mayor fricción</b> fue "<b>${escapeHtml(weakest.title)}</b>" (${Math.round(weakest.avg)}% · ${getCriticidad(weakest.avg).label}). La de <b>mejor desempeño</b> fue "<b>${escapeHtml(strongest.title)}</b>" (${Math.round(strongest.avg)}% · ${getCriticidad(strongest.avg).label}).</p>`;
     }
     if(surveyWithData.length){
       const csatOverall = surveyWithData.reduce((a,b)=>a+b.avg,0)/surveyWithData.length;
-      execHtml += `<p>La encuesta de satisfacción promedió <b>${csatOverall.toFixed(1)}/5</b> ${FACE_BY_VALUE[Math.round(Math.min(5,Math.max(1,csatOverall)))]}.</p>`;
+      execHtml += `<p>La encuesta de satisfacción promedió <b>${csatOverall.toFixed(1)}/5</b> ${faceMarkup(csatOverall)}.</p>`;
     }
     execHtml += `<p>${verdict}</p>`;
   }
 
-  // --- 4. Construir bloques de tareas (editables) ---
+  // --- 4. Construir bloques de tareas (editables, layout Figma) ---
   const tasksWrap = document.createElement('div');
   tasksWrap.className = 'summary-tasks-wrap';
   if(taskList.length === 0){
-    tasksWrap.innerHTML = '<p class="empty-note">No se encontraron tareas evaluables.</p>';
-  }
-
-  function binaryAvgHtml(label, values){
-    if(!values || values.length === 0){
-      return `<div class="ba-item" contenteditable="true">${escapeHtml(label)}: <b>—</b> <span style="color:var(--muted)">(sin respuestas)</span></div>`;
-    }
-    const yes = values.filter(v => v === 1).length;
-    const pct = Math.round((yes / values.length) * 100);
-    return `<div class="ba-item" contenteditable="true">${escapeHtml(label)}: <b>${pct}%</b> Sí (${yes}/${values.length})</div>`;
+    tasksWrap.innerHTML = '<p class="empty-note" contenteditable="true">No se encontraron tareas evaluables.</p>';
   }
 
   taskList.forEach(t => {
-    const block = document.createElement('div');
-    block.className = 'task-summary';
-    const binaryHtml = `<div class="binary-avgs">${binaryAvgHtml('¿Entendió el objetivo?', t.entendio)}${binaryAvgHtml('¿Encontró la sección?', t.encontro)}</div>`;
-
-    if(t.pctValues.length === 0){
-      block.innerHTML = `
-        <button type="button" class="ghost no-print task-summary-delete" onclick="this.closest('.task-summary').remove(); scheduleSave();" title="Eliminar bloque">✕</button>
-        <div class="task-summary-head"><span class="title" contenteditable="true">${escapeHtml(t.title)}</span></div>
-        <div class="n-count" contenteditable="true">Ningún entrevistado evaluó el nivel de criticidad todavía.</div>
-        ${binaryHtml}`;
-      tasksWrap.appendChild(block);
-      return;
-    }
-    const avg = t.pctValues.reduce((a,b)=>a+b,0) / t.pctValues.length;
-    const info = getCriticidad(avg);
-    const comp = COMPLIANCE_BY_LEVEL[info.label];
-    const obsCount = t.questions.reduce((a,q)=>a + q.observations.length, 0);
-
-    let obsHtml = '';
-    t.questions.forEach(q => {
-      obsHtml += `<div class="obs-item"><b contenteditable="true">${escapeHtml(q.pregunta)}</b>`;
-      if(q.observations.length === 0){
-        obsHtml += `<div class="empty-note" contenteditable="true" style="padding:2px 0;">Sin observaciones</div>`;
-      } else {
-        q.observations.forEach(o => {
-          obsHtml += `<div contenteditable="true"><span>${escapeHtml(o.name)}:</span> ${escapeHtml(o.text)}</div>`;
-        });
-      }
-      obsHtml += `</div>`;
-    });
-
-    block.innerHTML = `
-      <button type="button" class="ghost no-print task-summary-delete" onclick="this.closest('.task-summary').remove(); scheduleSave();" title="Eliminar bloque">✕</button>
-      <div class="task-summary-head">
-        <span class="title" contenteditable="true">${escapeHtml(t.title)}</span>
-        <span class="compliance-chip ${comp.cls}" contenteditable="true">${comp.text}</span>
-      </div>
-      <div class="n-count" contenteditable="true">${t.pctValues.length}/${N} entrevistados evaluaron esta tarea</div>
-      ${binaryHtml}
-      <div class="criticidad-widget">${buildStaticGauge(avg)}</div>
-      <div class="recommendation" contenteditable="true">${RECOMMENDATION_BY_LEVEL[info.label]}</div>
-      <details class="obs-details"><summary>Ver observaciones (${obsCount})</summary>
-        <div class="obs-list">${obsHtml}</div>
-      </details>`;
-    tasksWrap.appendChild(block);
+    tasksWrap.appendChild(buildTaskSummaryBlock(t, N));
   });
 
   // --- 5. Construir filas CSAT (editables) ---
@@ -1526,12 +1969,15 @@ function generateSummary(){
       } else {
         const avg = s.values.reduce((a,b)=>a+b,0) / s.values.length;
         const faceVal = Math.round(Math.min(5, Math.max(1, avg)));
+        const labelLine = (s.labels && s.labels.length)
+          ? s.labels.filter(Boolean).join(' · ')
+          : `${s.left} — ${s.right}`;
         row.innerHTML = `
           <button type="button" class="ghost no-print csat-delete" onclick="this.closest('.csat-summary-row').remove(); scheduleSave();" title="Eliminar fila">✕</button>
-          <div class="avg-face" contenteditable="true">${FACE_BY_VALUE[faceVal]}</div>
+          ${faceMarkup(faceVal)}
           <div class="meta">
             <div class="q" contenteditable="true">${escapeHtml(s.question)}</div>
-            <div class="labels" contenteditable="true">${escapeHtml(s.left)} — ${escapeHtml(s.right)}</div>
+            <div class="labels" contenteditable="true">${escapeHtml(labelLine)}</div>
           </div>
           <div class="avg-num" contenteditable="true">${avg.toFixed(1)}/5</div>`;
       }
@@ -1569,11 +2015,20 @@ function generateSummary(){
 
   const sectionsEl = page.querySelector('.summary-sections');
 
+  const execWrap = document.createElement('div');
+  execWrap.className = 'exec-summary-wrap';
   const execBody = document.createElement('div');
   execBody.className = 'exec-summary';
   execBody.contentEditable = 'true';
   execBody.innerHTML = execHtml || '<p>Escribe el resumen ejecutivo aquí.</p>';
-  sectionsEl.appendChild(makeSummarySection('Resumen ejecutivo', execBody));
+  const execConclusions = document.createElement('div');
+  execConclusions.className = 'exec-conclusions';
+  execConclusions.innerHTML = `
+    <div class="exec-conclusions-title" contenteditable="true">Conclusiones</div>
+    <div class="exec-conclusions-body" contenteditable="true" data-placeholder="Escribe aquí las conclusiones del resumen ejecutivo…"><p>Escribe las conclusiones clave del testeo. Puedes editar este título y el texto libremente.</p></div>`;
+  execWrap.appendChild(execBody);
+  execWrap.appendChild(execConclusions);
+  sectionsEl.appendChild(makeSummarySection('Resumen ejecutivo', execWrap));
 
   const tasksSection = makeSummarySection('Nivel de criticidad promedio por tarea', tasksWrap);
   tasksSection.insertAdjacentHTML('beforeend', `
@@ -1662,7 +2117,7 @@ function makeParticipantPage(base){
     const sectionsEl = page.querySelector('.sections');
     buildTemplateSections(sectionsEl);
     const surveyList = page.querySelector('.survey-list');
-    SURVEY_QUESTIONS.forEach(sq => surveyList.appendChild(makeSurveyRow(sq.q, sq.left, sq.right)));
+    SURVEY_QUESTIONS.forEach(sq => surveyList.appendChild(makeSurveyRow(sq.q, sq.left, sq.right, sq.labels)));
   } else {
     page.innerHTML = base.innerHTML;
     // limpiar datos propios del entrevistado, mantener estructura de preguntas
@@ -1737,6 +2192,15 @@ function confirmDeleteTaskEval(btn){
     '¿Eliminar el nivel de criticidad?',
     'Se va a quitar la evaluación de logro de tarea (Logrado / Logrado con dificultad / No logrado) de esta sección. Esta acción no se puede deshacer.',
     () => { taskEval.remove(); scheduleSave(); }
+  );
+}
+
+function confirmDeleteBinary(btn){
+  const block = btn.closest('.task-binary');
+  openConfirmModal(
+    '¿Eliminar preguntas Sí/No?',
+    'Se van a quitar “¿Entendió el objetivo?” y “¿Encontró la sección?” de esta tarea. Esta acción no se puede deshacer.',
+    () => { block.remove(); scheduleSave(); }
   );
 }
 
@@ -1831,7 +2295,7 @@ function initSectionDrag(){
 initSectionDrag();
 
 // --- Autoguardado en este navegador (no envía datos a ningún servidor) ---
-const STORAGE_KEY = 'bajada-testeo-autosave-v8';
+const STORAGE_KEY = 'bajada-testeo-autosave-v9';
 let saveTimeout = null;
 let saveSuspended = false;
 
@@ -1854,6 +2318,57 @@ function clearSavedState(){
   }
 }
 
+/** Descarga un .html con el contenido actual embebido (otra persona lo abre y ve todo lo escrito). */
+function downloadFilledHtml(){
+  // Sincronizar <select> al HTML antes de serializar
+  document.querySelectorAll('#pages select').forEach(sel => {
+    Array.from(sel.options).forEach(opt => { opt.selected = (opt.value === sel.value); });
+  });
+  saveState();
+
+  const pagesHtml = document.getElementById('pages').innerHTML;
+  const embed = 'window.__EMBEDDED_PAGES__ = ' + JSON.stringify(pagesHtml) + ';\n';
+
+  const finish = (source) => {
+    const marker = '(function init(){';
+    const idx = source.indexOf(marker);
+    if(idx !== -1){
+      const before = source.slice(0, idx).replace(/window\.__EMBEDDED_PAGES__\s*=\s*"(?:\\.|[^"\\])*";\s*$/, '');
+      source = before + embed + source.slice(idx);
+    } else {
+      source = source.replace(/<\/script>/i, embed + '</script>');
+    }
+    source = source.replace(/modal-overlay open/g, 'modal-overlay');
+
+    const blob = new Blob([source], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = 'informe-testeo-' + stamp + '.html';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  // Preferir el archivo fuente (más limpio). Si falla (file://), usar el DOM actual.
+  fetch(location.href)
+    .then(r => {
+      if(!r.ok) throw new Error('fetch failed');
+      return r.text();
+    })
+    .then(finish)
+    .catch(() => {
+      const clone = document.documentElement.cloneNode(true);
+      clone.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+      // Vaciar #pages en el clon: el contenido viaja en __EMBEDDED_PAGES__
+      const pagesClone = clone.querySelector('#pages');
+      if(pagesClone) pagesClone.innerHTML = '';
+      finish('<!DOCTYPE html>\n' + clone.outerHTML);
+    });
+}
+
 // Cualquier cambio en el contenido (texto, secciones, caritas, etc.) dispara el guardado
 new MutationObserver(scheduleSave).observe(document.getElementById('pages'), {
   childList:true, subtree:true, characterData:true, attributes:true
@@ -1870,6 +2385,20 @@ document.addEventListener('change', function(e){
 
 // también guardar ante cualquier tecla dentro de campos editables
 document.addEventListener('input', scheduleSave);
+
+/* Al imprimir: abrir detalles colapsados para que el PDF no pierda contenido */
+let __printOpenedDetails = [];
+window.addEventListener('beforeprint', () => {
+  __printOpenedDetails = [];
+  document.querySelectorAll('details.obs-details:not([open])').forEach(d => {
+    d.setAttribute('open', '');
+    __printOpenedDetails.push(d);
+  });
+});
+window.addEventListener('afterprint', () => {
+  __printOpenedDetails.forEach(d => d.removeAttribute('open'));
+  __printOpenedDetails = [];
+});
 
 // --- Inicializar: restaurar si hay datos guardados, o crear la hoja plantilla ---
 
@@ -1896,13 +2425,13 @@ const HOME_QUESTIONS = [
 ];
 
 const SURVEY_QUESTIONS = [
-  {q:"Facilidad para encontrar la sección de beneficios", left:"Muy difícil", right:"Muy fácil"},
-  {q:"Utilidad de la sección de planes", left:"Nada útil", right:"Muy útil"},
-  {q:"Utilidad de la sección de prestadores / clínicas en convenio", left:"Nada útil", right:"Muy útil"},
-  {q:"Utilidad de la sección de promociones (mascotas, VPH, etc.)", left:"Nada útil", right:"Muy útil"},
-  {q:"Utilidad del bloque educativo (cómo se calcula tu plan)", left:"Nada útil", right:"Muy útil"},
-  {q:"Utilidad de la sección de chequeos preventivos", left:"Nada útil", right:"Muy útil"},
-  {q:"Utilidad general del recorrido completo de la página", left:"Nada útil", right:"Muy útil"}
+  {q:"Facilidad para encontrar la sección de beneficios", left:"Muy difícil", right:"Muy fácil", labels:["Muy difícil","Difícil","Neutral","Fácil","Muy fácil"]},
+  {q:"Utilidad de la sección de planes", left:"Nada útil", right:"Muy útil", labels:["Nada útil","Poco útil","Neutral","Útil","Muy útil"]},
+  {q:"Utilidad de la sección de prestadores / clínicas en convenio", left:"Nada útil", right:"Muy útil", labels:["Nada útil","Poco útil","Neutral","Útil","Muy útil"]},
+  {q:"Utilidad de la sección de promociones (mascotas, VPH, etc.)", left:"Nada útil", right:"Muy útil", labels:["Nada útil","Poco útil","Neutral","Útil","Muy útil"]},
+  {q:"Utilidad del bloque educativo (cómo se calcula tu plan)", left:"Nada útil", right:"Muy útil", labels:["Nada útil","Poco útil","Neutral","Útil","Muy útil"]},
+  {q:"Utilidad de la sección de chequeos preventivos", left:"Nada útil", right:"Muy útil", labels:["Nada útil","Poco útil","Neutral","Útil","Muy útil"]},
+  {q:"Utilidad general del recorrido completo de la página", left:"Nada útil", right:"Muy útil", labels:["Nada útil","Poco útil","Neutral","Útil","Muy útil"]}
 ];
 
 const REAL_PARTICIPANTS = [
@@ -2108,11 +2637,21 @@ function loadRealTestData(){
 
 const PDF_SUMMARY_NOTES = {
   ejecutivo: `
-    <p>Se analizaron <b>5 entrevistados</b> sobre <b>7 tareas</b> evaluadas. El nivel de criticidad promedio general es <b style="color:#1F31F6">Bajo (89%)</b>.</p>
+    <p>Se analizaron <b>5 entrevistados</b> sobre <b>7 tareas</b> evaluadas. El nivel de criticidad promedio general es <b style="color:#155BEB">Bajo (89%)</b>.</p>
     <p>La tarea con <b>mayor fricción</b> fue buscar clínicas o prestadores en convenio (<b>73%</b> · Bajo).</p>
     <p>La de <b>mejor desempeño</b> fue la de chequeos preventivos (<b>100%</b> · Nulo).</p>
-    <p>La encuesta promedió <b>4.3/5</b> 🙂.</p>
+    <p>La encuesta promedió <b>4.3/5</b>.</p>
     <p>En conjunto, el diseño <b>cumple razonablemente</b> con los criterios de usabilidad evaluados y esperados.</p>
+  `,
+  conclusionesExec: `
+    <p>La página se percibe clara, ordenada y más moderna de lo esperado para una isapre.</p>
+    <p>Las oportunidades están menos en cambiar el contenido completo y más en destacar mejor la información clave para decidir: costos, beneficios diferenciadores, prestadores y accesos de uso frecuente. También aparece la necesidad de ajustar jerarquías para que ciertos bloques importantes no pasen desapercibidos.</p>
+    <p><b>Qué agregarían:</b></p>
+    <ul>
+      <li>Prestadores segmentados por región.</li>
+      <li>Planes sugeridos según etapa de vida o composición familiar.</li>
+      <li>Más beneficios diferenciadores en las cards de planes (ej. telemedicina, descuentos adicionales).</li>
+    </ul>
   `,
   observaciones: `
     <p><b>Observaciones generales</b></p>
@@ -2141,6 +2680,8 @@ function applyPdfSummaryNotes(){
   if(!page) return;
   const exec = page.querySelector('.exec-summary');
   if(exec) exec.innerHTML = PDF_SUMMARY_NOTES.ejecutivo;
+  const execConcBody = page.querySelector('.exec-conclusions-body');
+  if(execConcBody) execConcBody.innerHTML = PDF_SUMMARY_NOTES.conclusionesExec;
 
   const richBlocks = page.querySelectorAll('.rich-block');
   richBlocks.forEach(block => {
@@ -2169,25 +2710,72 @@ function applyPdfSummaryNotes(){
   scheduleSave();
 }
 
-function confirmLoadRealTestData(){
-  openConfirmModal(
-    '¿Cargar respuestas del PDF?',
-    'Se reemplazará lo de pantalla por las 5 entrevistas del Informe (Patricia, Stephani, Adela, Vivian y Eduardo) y se generará el resumen con observaciones y conclusiones del PDF.',
-    () => loadRealTestData(),
-    'Cargar respuestas'
-  );
+function ensureBinaryCloseButtons(){
+  document.querySelectorAll('.task-binary').forEach(block => {
+    if(block.querySelector('.task-binary-close')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'task-binary-close no-print';
+    btn.title = 'Eliminar preguntas Sí/No';
+    btn.setAttribute('onclick', 'confirmDeleteBinary(this)');
+    btn.textContent = '✕';
+    block.prepend(btn);
+  });
+}
+
+/** Migra escalas Likert antiguas al layout Figma (iconos 265:77) */
+function upgradeSurveyRows(){
+  document.querySelectorAll('.survey-row').forEach(row => {
+    // Caso viejo sin card: reconstruir fila completa
+    if(!row.querySelector('.faces-card')){
+      const qEl = row.querySelector('.survey-question');
+      const question = qEl ? qEl.textContent.trim() : 'Pregunta de encuesta';
+      const leftEl = row.querySelector('.face-labels-edit .left');
+      const rightEl = row.querySelector('.face-labels-edit .right');
+      const left = leftEl ? leftEl.textContent.trim() : 'Nada';
+      const right = rightEl ? rightEl.textContent.trim() : 'Mucho';
+      const selected = row.querySelector('.face-btn.selected');
+      const selectedVal = selected ? selected.dataset.value : null;
+      const fresh = makeSurveyRow(question, left, right);
+      row.replaceWith(fresh);
+      if(selectedVal){
+        const btn = fresh.querySelector(`.face-btn[data-value="${selectedVal}"]`);
+        if(btn) btn.classList.add('selected');
+      }
+      return;
+    }
+    // Caso con card: refrescar SVG Figma y colores sin perder labels/selección
+    row.querySelectorAll('.face-btn').forEach(btn => {
+      const v = btn.dataset.value;
+      const wasSelected = btn.classList.contains('selected');
+      btn.innerHTML = faceIconSvg(v);
+      btn.classList.toggle('selected', wasSelected);
+    });
+  });
 }
 
 (function init(){
   const pagesEl = document.getElementById('pages');
+  // 1) Archivo descargado con datos embebidos
+  if(typeof window.__EMBEDDED_PAGES__ === 'string' && window.__EMBEDDED_PAGES__.trim()){
+    pagesEl.innerHTML = window.__EMBEDDED_PAGES__;
+    ensureBinaryCloseButtons();
+    upgradeSurveyRows();
+    scheduleSave();
+    return;
+  }
+  // 2) Autoguardado de este navegador
   let saved = null;
   try{ saved = localStorage.getItem(STORAGE_KEY); }catch(e){}
   if(saved && saved.trim()){
     pagesEl.innerHTML = saved;
-  } else {
-    // Primera apertura: dejar el HTML con todo el contenido del PDF
-    loadRealTestData();
+    ensureBinaryCloseButtons();
+    upgradeSurveyRows();
+    scheduleSave();
+    return;
   }
+  // 3) Primera apertura: contenido del informe PDF
+  loadRealTestData();
 })();
 </script>
 
