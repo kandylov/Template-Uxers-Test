@@ -623,10 +623,7 @@ h1.doc-title{
 .exec-summary p:last-child{margin-bottom:0;}
 .exec-summary b{font-weight:700;}
 .exec-conclusions{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:24px 26px;
+  display:none !important; /* eliminada: conclusiones van al final del informe */
 }
 .exec-conclusions-title{
   font-size:16px;
@@ -2747,6 +2744,10 @@ function upgradeSurveyRows(){
   });
 }
 
+function stripExecConclusions(){
+  document.querySelectorAll('.exec-conclusions').forEach(el => el.remove());
+}
+
 (function init(){
   const pagesEl = document.getElementById('pages');
   // 1) Archivo descargado con datos embebidos
@@ -2754,6 +2755,7 @@ function upgradeSurveyRows(){
     pagesEl.innerHTML = window.__EMBEDDED_PAGES__;
     ensureBinaryCloseButtons();
     upgradeSurveyRows();
+    stripExecConclusions();
     scheduleSave();
     return;
   }
@@ -2764,11 +2766,13 @@ function upgradeSurveyRows(){
     pagesEl.innerHTML = saved;
     ensureBinaryCloseButtons();
     upgradeSurveyRows();
+    stripExecConclusions();
     scheduleSave();
     return;
   }
   // 3) Primera apertura: contenido del informe PDF
   loadRealTestData();
+  stripExecConclusions();
 })();
 </script>
 
