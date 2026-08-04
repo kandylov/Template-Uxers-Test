@@ -930,17 +930,30 @@ h1.doc-title{
   border-color:transparent;
 }
 .face-btn.selected{
-  color:#0F202B !important;
-  background:transparent !important;
+  background:#0F202B !important;
   border:none !important;
-  transform:scale(1.12);
+  transform:scale(1.06);
   filter:none;
+  /* Mantiene el color semántico del data-value (no pasa a negro) */
+}
+.face-btn.selected:hover{
+  background:#0F202B !important;
+  filter:none;
+}
+.face-btn.selected .face-icon{
+  width:28px;
+  height:28px;
 }
 .face-btn:focus,
 .face-btn:focus-visible{
   outline:2px solid #0F202B;
   outline-offset:2px;
   background:transparent;
+}
+.face-btn.selected:focus,
+.face-btn.selected:focus-visible{
+  outline-color:#0F202B;
+  background:#0F202B !important;
 }
 .face-btn.anim-bounce{
   animation:faceBounce .55s cubic-bezier(.34,1.56,.64,1);
