@@ -461,6 +461,36 @@ h1.doc-title{
   border-radius:10px;
   padding:16px 18px 4px;
   margin-bottom:16px;
+  position:relative;
+}
+.task-summary-delete{
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:1;
+}
+.task-summary-head .title[contenteditable]:focus,
+.task-summary .n-count[contenteditable]:focus,
+.task-summary .recommendation[contenteditable]:focus,
+.csat-summary-row .q[contenteditable]:focus,
+.csat-summary-row .labels[contenteditable]:focus,
+.exec-stat .num[contenteditable]:focus,
+.exec-stat .lbl[contenteditable]:focus{
+  background:var(--accent-soft);
+  border-radius:4px;
+}
+.summary-page .section-head{cursor:default;}
+.summary-page .summary-sections{margin-bottom:8px;}
+.summary-section-footer{
+  margin-top:10px;
+  margin-bottom:4px;
+}
+.summary-tasks-wrap,
+.summary-csat-wrap{min-height:24px;}
+.csat-summary-row .csat-delete{
+  position:absolute;
+  top:8px;
+  right:8px;
 }
 .task-summary-head{
   display:flex;
@@ -500,6 +530,7 @@ h1.doc-title{
   border-radius:10px;
   padding:14px 18px;
   margin-bottom:12px;
+  position:relative;
 }
 .csat-summary-row .avg-face{font-size:30px; line-height:1;}
 .csat-summary-row .meta{flex:1;}
@@ -1065,12 +1096,82 @@ function buildStaticGauge(avgPct){
     </div>`;
 }
 
+function makeEmptyTaskSummaryBlock(){
+  const block = document.createElement('div');
+  block.className = 'task-summary';
+  block.innerHTML = `
+    <button type="button" class="ghost no-print task-summary-delete" onclick="this.closest('.task-summary').remove(); scheduleSave();" title="Eliminar bloque">✕</button>
+    <div class="task-summary-head">
+      <span class="title" contenteditable="true" data-placeholder="Nombre de la tarea">Nueva tarea</span>
+    </div>
+    <div class="n-count" contenteditable="true" data-placeholder="Ej: 4/4 entrevistados evaluaron esta tarea">&nbsp;</div>
+    <div class="recommendation" contenteditable="true" data-placeholder="Recomendación o conclusión...">&nbsp;</div>
+    <details class="obs-details"><summary>Ver observaciones (0)</summary>
+      <div class="obs-list"><div class="obs-item"><b contenteditable="true">Pregunta</b><div contenteditable="true" class="empty-note" style="padding:2px 0;">Sin observaciones</div></div></div>
+    </details>`;
+  return block;
+}
+
+function makeEmptyCsatSummaryRow(){
+  const row = document.createElement('div');
+  row.className = 'csat-summary-row';
+  row.innerHTML = `
+    <button type="button" class="ghost no-print csat-delete" onclick="this.closest('.csat-summary-row').remove(); scheduleSave();" title="Eliminar fila">✕</button>
+    <div class="avg-face" contenteditable="true">😐</div>
+    <div class="meta">
+      <div class="q" contenteditable="true" data-placeholder="Pregunta de encuesta">Nueva pregunta</div>
+      <div class="labels" contenteditable="true" data-placeholder="Etiquetas">Muy bajo — Muy alto</div>
+    </div>
+    <div class="avg-num" contenteditable="true">—/5</div>`;
+  return row;
+}
+
+function makeSummarySection(title, bodyEl){
+  const sec = document.createElement('div');
+  sec.className = 'section summary-section';
+  sec.innerHTML = `
+    <div class="section-head">
+      <div class="section-title" contenteditable="true">${escapeHtml(title)}</div>
+      <button class="section-delete no-print" onclick="confirmDeleteSection(this)" title="Eliminar sección"><svg width="26" height="26" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="0.5" y="0.5" width="29" height="29" rx="14.5" fill="#FFFFFF" stroke="#DCE1EC"/>
+<path d="M15 7.5C15.8502 7.50005 16.6663 7.83735 17.2676 8.43848C17.8688 9.0397 18.2069 9.85581 18.207 10.7061V10.7197H21.4404C21.7292 10.7199 21.9638 10.9543 21.9639 11.2432C21.9639 11.532 21.7293 11.7664 21.4404 11.7666H20.3535V20.9033C20.3534 21.3265 20.1849 21.733 19.8857 22.0322C19.5864 22.3314 19.1801 22.4999 18.7568 22.5H11.2432C10.8198 22.4999 10.4136 22.3315 10.1143 22.0322C9.81494 21.7329 9.64656 21.3266 9.64648 20.9033V11.7666H8.55957C8.27075 11.7664 8.03711 11.532 8.03711 11.2432C8.03717 10.9544 8.27079 10.7199 8.55957 10.7197H11.7939V10.7061C11.7941 9.85581 12.1312 9.0397 12.7324 8.43848C13.3337 7.83734 14.1498 7.50006 15 7.5ZM10.6934 20.9033C10.6934 21.0489 10.7508 21.189 10.8535 21.292C10.9567 21.3951 11.0974 21.453 11.2432 21.4531H18.7568C18.9026 21.4531 19.0424 21.395 19.1455 21.292C19.2485 21.1889 19.3066 21.049 19.3066 20.9033V11.7666H10.6934V20.9033ZM13.3896 13.9424C13.6785 13.9424 13.9129 14.176 13.9131 14.4648V18.7598C13.9129 19.0486 13.6785 19.2832 13.3896 19.2832C13.1009 19.283 12.8664 19.0485 12.8662 18.7598V14.4648C12.8664 14.1761 13.1009 13.9426 13.3896 13.9424ZM16.6094 13.9424C16.8983 13.9424 17.1326 14.176 17.1328 14.4648V18.7598C17.1327 19.0486 16.8983 19.2832 16.6094 19.2832C16.3208 19.2828 16.0871 19.0484 16.0869 18.7598V14.4648C16.0871 14.1762 16.3208 13.9427 16.6094 13.9424ZM15 8.54688C14.4272 8.54693 13.8777 8.77469 13.4727 9.17969C13.0679 9.58462 12.84 10.1335 12.8398 10.7061V10.7197H17.1602V10.7061C17.16 10.1335 16.9322 9.58463 16.5273 9.17969C16.1223 8.77464 15.5728 8.54693 15 8.54688Z" fill="#0F202B"/>
+</svg></button>
+    </div>`;
+  sec.appendChild(bodyEl);
+  return sec;
+}
+
+function addSummarySection(){
+  const page = document.querySelector('.summary-page');
+  if(!page) return;
+  const container = page.querySelector('.summary-sections');
+  const body = document.createElement('div');
+  body.className = 'exec-summary';
+  body.contentEditable = 'true';
+  body.dataset.placeholder = 'Escribe el contenido de esta sección...';
+  body.innerHTML = '<p>Nueva sección — escribe aquí tus conclusiones.</p>';
+  const sec = makeSummarySection('Nueva sección', body);
+  container.appendChild(sec);
+  body.focus();
+  scheduleSave();
+}
+
+function addSummaryTaskBlock(btn){
+  btn.closest('.summary-section').querySelector('.summary-tasks-wrap').appendChild(makeEmptyTaskSummaryBlock());
+  scheduleSave();
+}
+
+function addSummaryCsatRow(btn){
+  btn.closest('.summary-section').querySelector('.summary-csat-wrap').appendChild(makeEmptyCsatSummaryRow());
+  scheduleSave();
+}
+
 function generateSummary(){
   const pagesEl = document.getElementById('pages');
   const existing = pagesEl.querySelector('.summary-page');
   if(existing) existing.remove();
 
-  const participantPages = Array.from(pagesEl.querySelectorAll(':scope > .page'));
+  const participantPages = Array.from(pagesEl.querySelectorAll(':scope > .page:not(.summary-page)'));
   const N = participantPages.length;
   if(N === 0){ alert('No hay hojas de entrevistados para resumir.'); return; }
 
@@ -1175,15 +1276,21 @@ function generateSummary(){
     execHtml += `<p>${verdict}</p>`;
   }
 
-  // --- 4. Construir HTML de tareas ---
-  let tasksHtml = '';
+  // --- 4. Construir bloques de tareas (editables) ---
+  const tasksWrap = document.createElement('div');
+  tasksWrap.className = 'summary-tasks-wrap';
+  if(taskList.length === 0){
+    tasksWrap.innerHTML = '<p class="empty-note">No se encontraron tareas evaluables.</p>';
+  }
   taskList.forEach(t => {
+    const block = document.createElement('div');
+    block.className = 'task-summary';
     if(t.pctValues.length === 0){
-      tasksHtml += `
-        <div class="task-summary">
-          <div class="task-summary-head"><span class="title">${escapeHtml(t.title)}</span></div>
-          <p class="empty-note">Ningún entrevistado evaluó esta tarea todavía.</p>
-        </div>`;
+      block.innerHTML = `
+        <button type="button" class="ghost no-print task-summary-delete" onclick="this.closest('.task-summary').remove(); scheduleSave();" title="Eliminar bloque">✕</button>
+        <div class="task-summary-head"><span class="title" contenteditable="true">${escapeHtml(t.title)}</span></div>
+        <p class="empty-note" contenteditable="true">Ningún entrevistado evaluó esta tarea todavía.</p>`;
+      tasksWrap.appendChild(block);
       return;
     }
     const avg = t.pctValues.reduce((a,b)=>a+b,0) / t.pctValues.length;
@@ -1193,101 +1300,118 @@ function generateSummary(){
 
     let obsHtml = '';
     t.questions.forEach(q => {
-      obsHtml += `<div class="obs-item"><b>${escapeHtml(q.pregunta)}</b>`;
+      obsHtml += `<div class="obs-item"><b contenteditable="true">${escapeHtml(q.pregunta)}</b>`;
       if(q.observations.length === 0){
-        obsHtml += `<div class="empty-note" style="padding:2px 0;">Sin observaciones</div>`;
+        obsHtml += `<div class="empty-note" contenteditable="true" style="padding:2px 0;">Sin observaciones</div>`;
       } else {
         q.observations.forEach(o => {
-          obsHtml += `<div><span>${escapeHtml(o.name)}:</span> ${escapeHtml(o.text)}</div>`;
+          obsHtml += `<div contenteditable="true"><span>${escapeHtml(o.name)}:</span> ${escapeHtml(o.text)}</div>`;
         });
       }
       obsHtml += `</div>`;
     });
 
-    tasksHtml += `
-      <div class="task-summary">
-        <div class="task-summary-head">
-          <span class="title">${escapeHtml(t.title)}</span>
-          <span class="compliance-chip ${comp.cls}">${comp.text}</span>
-        </div>
-        <div class="n-count">${t.pctValues.length}/${N} entrevistados evaluaron esta tarea</div>
-        <div class="criticidad-widget">${buildStaticGauge(avg)}</div>
-        <div class="recommendation">${RECOMMENDATION_BY_LEVEL[info.label]}</div>
-        <details class="obs-details"><summary>Ver observaciones (${obsCount})</summary>
-          <div class="obs-list">${obsHtml}</div>
-        </details>
-      </div>`;
+    block.innerHTML = `
+      <button type="button" class="ghost no-print task-summary-delete" onclick="this.closest('.task-summary').remove(); scheduleSave();" title="Eliminar bloque">✕</button>
+      <div class="task-summary-head">
+        <span class="title" contenteditable="true">${escapeHtml(t.title)}</span>
+        <span class="compliance-chip ${comp.cls}" contenteditable="true">${comp.text}</span>
+      </div>
+      <div class="n-count" contenteditable="true">${t.pctValues.length}/${N} entrevistados evaluaron esta tarea</div>
+      <div class="criticidad-widget">${buildStaticGauge(avg)}</div>
+      <div class="recommendation" contenteditable="true">${RECOMMENDATION_BY_LEVEL[info.label]}</div>
+      <details class="obs-details"><summary>Ver observaciones (${obsCount})</summary>
+        <div class="obs-list">${obsHtml}</div>
+      </details>`;
+    tasksWrap.appendChild(block);
   });
 
-  // --- 5. Construir HTML de encuesta CSAT ---
-  let csatHtml = '';
+  // --- 5. Construir filas CSAT (editables) ---
+  const csatWrap = document.createElement('div');
+  csatWrap.className = 'summary-csat-wrap';
   if(surveyList.length === 0){
-    csatHtml = '<p class="empty-note">No hay preguntas de encuesta configuradas.</p>';
+    csatWrap.innerHTML = '<p class="empty-note" contenteditable="true">No hay preguntas de encuesta configuradas.</p>';
   } else {
     surveyList.forEach(s => {
+      const row = document.createElement('div');
+      row.className = 'csat-summary-row';
       if(s.values.length === 0){
-        csatHtml += `
-          <div class="csat-summary-row">
-            <div class="meta"><div class="q">${escapeHtml(s.question)}</div><div class="labels">${escapeHtml(s.left)} — ${escapeHtml(s.right)}</div></div>
-            <div class="empty-note">Sin respuestas</div>
-          </div>`;
-        return;
-      }
-      const avg = s.values.reduce((a,b)=>a+b,0) / s.values.length;
-      const faceVal = Math.round(Math.min(5, Math.max(1, avg)));
-      csatHtml += `
-        <div class="csat-summary-row">
-          <div class="avg-face">${FACE_BY_VALUE[faceVal]}</div>
+        row.innerHTML = `
+          <button type="button" class="ghost no-print csat-delete" onclick="this.closest('.csat-summary-row').remove(); scheduleSave();" title="Eliminar fila">✕</button>
           <div class="meta">
-            <div class="q">${escapeHtml(s.question)}</div>
-            <div class="labels">${escapeHtml(s.left)} — ${escapeHtml(s.right)}</div>
+            <div class="q" contenteditable="true">${escapeHtml(s.question)}</div>
+            <div class="labels" contenteditable="true">${escapeHtml(s.left)} — ${escapeHtml(s.right)}</div>
           </div>
-          <div class="avg-num">${avg.toFixed(1)}/5</div>
-        </div>`;
+          <div class="empty-note" contenteditable="true">Sin respuestas</div>`;
+      } else {
+        const avg = s.values.reduce((a,b)=>a+b,0) / s.values.length;
+        const faceVal = Math.round(Math.min(5, Math.max(1, avg)));
+        row.innerHTML = `
+          <button type="button" class="ghost no-print csat-delete" onclick="this.closest('.csat-summary-row').remove(); scheduleSave();" title="Eliminar fila">✕</button>
+          <div class="avg-face" contenteditable="true">${FACE_BY_VALUE[faceVal]}</div>
+          <div class="meta">
+            <div class="q" contenteditable="true">${escapeHtml(s.question)}</div>
+            <div class="labels" contenteditable="true">${escapeHtml(s.left)} — ${escapeHtml(s.right)}</div>
+          </div>
+          <div class="avg-num" contenteditable="true">${avg.toFixed(1)}/5</div>`;
+      }
+      csatWrap.appendChild(row);
     });
   }
 
-  // --- 6. Stats rápidas ---
+  // --- 6. Stats rápidas (editables) ---
   const csatOverallForStat = surveyWithData.length ? (surveyWithData.reduce((a,b)=>a+b.avg,0)/surveyWithData.length).toFixed(1) : '—';
-  const statsHtml = `
-    <div class="exec-stats">
-      <div class="exec-stat"><div class="num">${N}</div><div class="lbl">Entrevistados</div></div>
-      <div class="exec-stat"><div class="num">${overallPct!==null ? Math.round(overallPct)+'%' : '—'}</div><div class="lbl">Éxito promedio</div></div>
-      <div class="exec-stat"><div class="num" style="color:${overallInfo?overallInfo.color:'inherit'}">${overallInfo?overallInfo.label:'—'}</div><div class="lbl">Criticidad global</div></div>
-      <div class="exec-stat"><div class="num">${csatOverallForStat}${csatOverallForStat!=='—'?'/5':''}</div><div class="lbl">CSAT promedio</div></div>
-    </div>`;
+  const statsEl = document.createElement('div');
+  statsEl.className = 'exec-stats';
+  statsEl.innerHTML = `
+    <div class="exec-stat"><div class="num" contenteditable="true">${N}</div><div class="lbl" contenteditable="true">Entrevistados</div></div>
+    <div class="exec-stat"><div class="num" contenteditable="true">${overallPct!==null ? Math.round(overallPct)+'%' : '—'}</div><div class="lbl" contenteditable="true">Éxito promedio</div></div>
+    <div class="exec-stat"><div class="num" contenteditable="true" style="color:${overallInfo?overallInfo.color:'inherit'}">${overallInfo?overallInfo.label:'—'}</div><div class="lbl" contenteditable="true">Criticidad global</div></div>
+    <div class="exec-stat"><div class="num" contenteditable="true">${csatOverallForStat}${csatOverallForStat!=='—'?'/5':''}</div><div class="lbl" contenteditable="true">CSAT promedio</div></div>`;
 
   const fecha = new Date().toLocaleDateString('es-CL', {day:'numeric', month:'long', year:'numeric'});
 
-  // --- 7. Ensamblar la hoja de resumen ---
+  // --- 7. Ensamblar la hoja de resumen (editable) ---
   const page = document.createElement('div');
   page.className = 'page summary-page';
   page.innerHTML = `
     <div class="page-toolbar no-print">
       <button class="ghost" onclick="removePage(this)" title="Eliminar hoja">✕</button>
     </div>
-    <h1 class="doc-title">Resumen de resultados</h1>
-    <div class="summary-meta">Generado el ${fecha} · ${N} entrevistado${N===1?'':'s'}</div>
+    <h1 class="doc-title" contenteditable="true">Resumen de resultados</h1>
+    <div class="summary-meta" contenteditable="true">Generado el ${fecha} · ${N} entrevistado${N===1?'':'s'}</div>
+    <div class="summary-sections"></div>
+    <div class="add-row no-print">
+      <button onclick="addSummarySection()">+ Agregar sección</button>
+    </div>`;
 
-    ${statsHtml}
+  page.insertBefore(statsEl, page.querySelector('.summary-sections'));
 
-    <div class="section">
-      <div class="section-head"><div class="section-title">Resumen ejecutivo</div></div>
-      <div class="exec-summary">${execHtml}</div>
-    </div>
+  const sectionsEl = page.querySelector('.summary-sections');
 
-    <div class="section">
-      <div class="section-head"><div class="section-title">Nivel de criticidad promedio por tarea</div></div>
-      ${tasksHtml || '<p class="empty-note">No se encontraron tareas evaluables.</p>'}
-    </div>
+  const execBody = document.createElement('div');
+  execBody.className = 'exec-summary';
+  execBody.contentEditable = 'true';
+  execBody.innerHTML = execHtml || '<p>Escribe el resumen ejecutivo aquí.</p>';
+  sectionsEl.appendChild(makeSummarySection('Resumen ejecutivo', execBody));
 
-    <div class="section">
-      <div class="section-head"><div class="section-title">Encuesta de satisfacción — promedio</div></div>
-      ${csatHtml}
-    </div>
-  `;
+  const tasksSection = makeSummarySection('Nivel de criticidad promedio por tarea', tasksWrap);
+  tasksSection.insertAdjacentHTML('beforeend', `
+    <div class="section-footer-actions no-print summary-section-footer">
+      <button class="link-btn" onclick="addSummaryTaskBlock(this)">+ Agregar bloque de tarea</button>
+    </div>`);
+  sectionsEl.appendChild(tasksSection);
+
+  const csatSection = makeSummarySection('Encuesta de satisfacción — promedio', csatWrap);
+  csatSection.insertAdjacentHTML('beforeend', `
+    <div class="section-footer-actions no-print summary-section-footer">
+      <button class="link-btn" onclick="addSummaryCsatRow(this)">+ Agregar fila de encuesta</button>
+    </div>`);
+  sectionsEl.appendChild(csatSection);
+
   pagesEl.appendChild(page);
   page.scrollIntoView({behavior:'smooth', block:'start'});
+  scheduleSave();
 }
 
 function addSurveyQuestion(btn){
@@ -1517,7 +1641,7 @@ function initSectionDrag(){
 initSectionDrag();
 
 // --- Autoguardado en este navegador (no envía datos a ningún servidor) ---
-const STORAGE_KEY = 'bajada-testeo-autosave-v4';
+const STORAGE_KEY = 'bajada-testeo-autosave-v6';
 let saveTimeout = null;
 let saveSuspended = false;
 
@@ -1561,7 +1685,8 @@ document.addEventListener('input', scheduleSave);
 
 // ============================================================
 // DATOS REALES — Test de usabilidad Home Isapre Esencial
-// Generado a partir de las transcripciones de Patricia, Stephani, Adela y Vivian
+// Extraídos de: Informe de testeo.pdf (Patricia, Stephani, Adela, Vivian, Eduardo)
+// homePct: % de logro por Tarea 1–8 (null = sin evaluación)
 // ============================================================
 
 const INTRO_QUESTIONS = [
@@ -1592,92 +1717,114 @@ const SURVEY_QUESTIONS = [
 
 const REAL_PARTICIPANTS = [
   {
-    nombre: "Patricia Alfaro Villalobos",
+    nombre: "Patricia Alfaro",
     edad: "51",
-    grupo: "Esposo (55), hijo (20), hija (19)",
+    grupo: "Familia de 4: esposo (55), hijo (20), hija (19)",
     genero: "Femenino",
-    taskLevel: 0.5,
     intro: [
-      "Familia de 4: esposo (55), hijo (20) e hija (19). Actualmente es carga de su esposo en FONASA. Antes estuvo en Isapre cuando trabajaba de forma independiente.",
+      "Familia de 4: esposo (55), hijo (20) e hija (19). Actualmente es carga de su esposo en Fonasa. Antes estuvo en Isapre cuando trabajaba de forma independiente.",
       "Históricamente le preocupaban las coberturas y los bonos fijos para procedimientos, sobre todo en etapa fértil. Hoy, en una etapa distinta, le interesaría saber si hay planes para personas con enfermedades preexistentes, coberturas de especialistas y cómo funciona el copago."
     ],
     home: [
-      "Entendió que la página presenta los planes y beneficios que ofrece la Isapre, con foco en atraer nuevos afiliados mostrando coberturas, clínicas asociadas y una experiencia con planes que se adaptan a las necesidades del usuario.",
+      "Entendió que la página presenta los planes y beneficios que ofrece la Isapre, con foco en atraer nuevos afiliados mostrando coberturas, clínicas asociadas y una experiencia con planes que se adaptan a las necesidades de diferentes personas.",
       "Fue directo a la sección \"Beneficios que te cuidan\" (el ícono del corazón). Comentó que los íconos de esa zona (chequeos preventivos, GES, etc.) le parecieron pequeños y que le gustaría que resaltaran más al ser justamente los beneficios.",
       "Identificó correctamente la sección de planes (Alemán Integral, Esencial, Esencial Inicio) y el botón \"Cotiza tu plan ideal\". Mencionó que miraría primero los planes en detalle antes de cotizar.",
       "Entendió \"cotiza tu plan ideal\" como el ingreso de datos personales (sueldo, edad, cargas) para recibir una oferta calculada, mientras que \"saber más de este plan\" lo interpretó como un desglose más exhaustivo de lo que incluye cada plan específico. Notó que los tres planes del prototipo mostraban los mismos porcentajes y preguntó si realmente había diferencia entre ellos (se le explicó que era una limitación del prototipo, no de la página real).",
-      "Encontró la sección de prestadores, pero al principio pensó erróneamente que al hacer clic en cada ícono se desplegaría el detalle de cobertura por clínica; le costó notar que ahí ya estaban listados los prestadores (texto pequeño). Comentó que para personas mayores como ella el texto se ve pequeño.",
+      "Encontró la sección de prestadores, pero al principio pensó que al hacer clic en cada ícono se desplegaría el detalle de cobertura por clínica; le costó notar que ahí ya estaban listados los prestadores (texto pequeño). Comentó que para personas mayores como ella el texto se ve pequeño.",
       "Llegó a la sección \"Qué deberías saber antes de elegir tu plan\" e ingresó al bloque educativo con la ilustración; entendió los conceptos (precio base, factor, edad, GES) \"a grandes rasgos\", aunque señaló que el título de esa sección se confunde con el de la sección de noticias, que tiene un nombre parecido.",
-      "Le pareció una sección clara y valiosa. Comentó que le gustaría saber exactamente qué exámenes están incluidos como preventivos (ej. mamografía, hemograma, PAP) para aprovechar el beneficio.",
+      "Le pareció una sección clara y valiosa. Comentó que le gustaría saber exactamente qué exámenes están incluidos como preventivos (ej. mamografía, hemograma, PAP) para aprovechar los beneficio. pero no menciona explicitamente el tema del costo 0",
       "Agrandaría el texto de la sección de noticias / qué deberías saber (le pareció chico) y agregaría explícitamente el copago fijo por urgencia como dato destacado, ya que en su experiencia previa eso le sirvió mucho."
     ],
-    survey: [4,5,3,5,3,4,4]
+    homePct: [100, 86, 80, 99, 80, 86, 100, null],
+    survey: [4, 5, 3, 5, 3, 4, 4]
   },
   {
     nombre: "Stephani",
-    edad: "",
-    grupo: "Vive con su pareja, sin hijos",
+    edad: "34",
+    grupo: "2 personas",
     genero: "Femenino",
-    taskLevel: 0.5,
     intro: [
       "Vive con su pareja, sin hijos. Actualmente está en Isapre Colmena; antes estuvo en Vida Salud y Banmédica. Se ha cambiado de Isapre varias veces buscando mejor relación costo-beneficio.",
       "Prioriza la relación costo-beneficio: cobertura y clínicas asociadas por sobre el precio puro. En su último cambio sacrificó cobertura en una clínica específica a cambio de mejor cobertura general por un valor similar."
     ],
     home: [
-      "Entendió que la página busca captar nuevos afiliados mostrando qué beneficios ofrece esta Isapre versus otras. Reconoció el logo y lo asoció correctamente al grupo Clínica Alemana, aunque no conocía Esencial como marca.",
-      "Fue directamente a \"Planes y productos\" para ver los beneficios desglosados por plan, valorando que se resaltara primero la cobertura hospitalaria.",
-      "También ubicó los planes en \"Planes y productos\". Esperaba ver la opción de simular/cotizar un poco más arriba en la página, no solo al final del bloque de planes.",
-      "Entiende \"cotizar\" y \"simular\" como conceptos distintos pero con el mismo fin (que un ejecutivo la contacte); le pareció una posible fuente de confusión que ambos botones lleven al mismo lugar y sugirió evitar repetir la palabra \"cotiza\" en múltiples botones.",
+      "Entendió que la página busca captar nuevos afiliados mostrando qué beneficios y planes ofrece esta Isapre versus otras. Reconoció el logo y lo asoció correctamente al grupo Clínica Alemana, aunque no conocía Esencial como marca.",
+      "Fue directamente a \"Planes y productos\" para ver los beneficios desglosados por plan, valorando que se resaltara primero la cobertura hospitalaria. no encontro la seccion de beneficios la vio luego de un buen tiempo realizando otra tarea.",
+      "También ubicó rapidamente la seccion de planes en la landing y menciono que iria tambien ala sección del menu de los planes en \"Planes y productos\".",
+      "Entiende \"cotizar\" y \"simular\" como conceptos distintos pero con el mismo fin (que un ejecutivo la contacte); le pareció una posible fuente de confusión que ambos botones lleven al mismo lugar y sugirió evitar repetir la palabra \"cotiza\" en múltiples botones. Sobre saber mas de este plan comento que lo entiende como un desglose o que la llevaria a una nueva pagina donde tendria mas detalles de plan.",
       "Identificó correctamente la sección de prestadores, entendiendo que son todas las clínicas de la red (no solo Clínica Alemana).",
-      "Cuando se le preguntó dónde encontraría cómo se calcula el plan, respondió \"en GES\", lo cual era incorrecto — el bloque real (\"Cómo se calcula tu plan\") le pasó completamente desapercibido. Señaló que el texto y el color del botón/ilustración son muy pequeños y de bajo contraste (\"no sé si es azul o gris\"), lo que hizo que se lo saltara sin leerlo pese a haber recorrido toda la página.",
+      "Cuando se le preguntó dónde encontraría cómo se calcula el plan, respondió \"en GES\", lo cual era incorrecto — el bloque real (\"Cómo se calcula tu plan\") le pasó completamente desapercibido. Señaló que el texto y el color del tab son pequeños o tienen poco contraste (\"no sé si es azul o gris\"), lo que hizo que se lo saltara sin leerlo pese a haber recorrido toda la página.",
       "Le pareció muy útil y valoró que los chequeos estén segmentados por etapa de vida (embarazo, infantil, adulto); sugirió agregar también una categoría para adulto mayor.",
-      "Sacaría el bloque de cierre repetido al final (sentía que ya se había explicado antes) y le daría más jerarquía visual al bloque de \"cómo se calcula tu plan\" ya que no lo notó. Le gustaría ver más beneficios adicionales en las tarjetas de plan (ej. telemedicina, descuentos para mascotas) más allá de solo coberturas."
+      "Sacaría el bloque de cierre repetido al final (sentía que ya se había explicado antes) y le daría más jerarquía visual al bloque de tabs ejemplo: \"cómo se calcula tu plan\" ya que no lo notó. Le gustaría ver más beneficios adicionales en las cards de planes (ej. telemedicina, descuentos para mascotas) más allá de solo coberturas o beneficios genericos de todas las isapres."
     ],
-    survey: [3,5,5,5,null,5,4]
+    homePct: [100, 31, 100, 85, 100, 25, 100, null],
+    survey: [3, 5, 5, 5, 4, 5, 4]
   },
   {
     nombre: "Adela Perera",
     edad: "",
-    grupo: "Vive con su hija (Iliana), su yerno y su nieto",
+    grupo: "4 personas",
     genero: "Femenino",
-    taskLevel: 1,
     intro: [
       "Vive con su hija (Iliana), su yerno y su nieto. Siempre ha estado en FONASA y nunca se ha cambiado a una Isapre.",
       "Lo primero que consideraría es conocer el plan y los beneficios que otorga, sobre todo el acceso a buenos médicos; el precio y el beneficio del plan son, para ella, los factores más importantes."
     ],
     home: [
       "Entendió rápidamente que la página habla sobre los planes y beneficios que ofrece la Isapre, y que ahí se puede conocer directamente la oferta.",
-      "Fue directo a la sección de \"Beneficios que te cuidan\" sin dudar.",
+      "Fue directo a la sección de \"Beneficios que te cuidan\" sin dudar. pero no lee o distingue loi de valor que los chequeos son gratuitos.",
       "Ubicó los planes sin problema (\"Encuentra el plan que se adapta a ti\") y notó que el prototipo mostraba los mismos porcentajes de cobertura en los tres planes, preguntando la diferencia entre ellos (se le aclaró que era una limitación del prototipo).",
-      "Entendió \"cotiza tu plan ideal\" como una comparación entre los planes según su presupuesto, y \"saber más de este plan\" como un desglose con más detalle (clínicas, especialidades médicas); incluso preguntó si ahí se podría ver médicos en particular, algo que se le aclaró que las Isapres no muestran a ese nivel de detalle.",
-      "Identificó la sección de clínicas en convenio (\"GES en tu clínica preferente\") sin dificultad.",
+      "Entendió \"cotiza tu plan ideal\" como una comparación entre los planes según su presupuesto, y \"saber más de este plan\" como un desglose con más detalle (clínicas, especialidades médicas); incluso preguntó si ahí se podría ver médicos en particular.",
+      "Identificó la sección de clínicas en convenio \"GES en tu clínica preferente\" como la seccion de prestadores o clínicas en convenio, pudo existir la confusión o relacion con el nombre \"clinicas\".",
       "Llegó sin problemas a \"Qué deberías saber antes de elegir tu plan\" cuando se le preguntó cómo se calcula el precio de un plan, y mencionó la edad como el factor más importante.",
       "Entendió con claridad que los chequeos preventivos están incluidos sin costo en todos los planes, y que corresponden a exámenes de rutina anual.",
       "No identificó nada que sacaría; consideró que la información y el orden general de la página estaban bien, y que el recorrido de arriba hacia abajo era claro para decidir sobre un plan."
     ],
-    survey: [4,5,5,2,5,5,5]
+    homePct: [100, 100, 100, 100, 0, 100, 100, null],
+    survey: [4, 5, 5, 2, 5, 5, 5]
   },
   {
     nombre: "Vivian",
     edad: "",
-    grupo: "Pareja + 2 hijos varones (5 y 3 años)",
+    grupo: "4 personas",
     genero: "Femenino",
-    taskLevel: 0.5,
     intro: [
       "Vive con su pareja y sus 2 hijos varones (5 y 3 años). Actualmente está en Isapre Banmédica; se ha cambiado 3 veces antes (Cruz Blanca, luego MasVida, luego Banmédica). Es enfermera de profesión.",
       "Prioriza la cobertura para sus hijos (consultas, exámenes, operaciones) y que el plan tenga buena cobertura en un centro de salud cercano y de prestigio. Compara siempre costo versus beneficio antes de cambiarse."
     ],
     home: [
       "Entendió que la página invita a conocer la Isapre y cotizar un plan, destacando los puntos fuertes (chequeos preventivos, beneficios, prestadores) para animar al usuario a cotizar.",
-      "Encontró \"Beneficios que te cuidan\" sin problema y le llamó la atención por su cercanía con SalcoBrand, que usa habitualmente.",
-      "Ubicó la sección de planes (\"Encuentra tu plan ideal\") sin dificultad, valorando que se destaque el valor en UF y el porcentaje de cobertura de cada plan.",
-      "Interpretó que \"cotiza tu plan ideal\" pide datos personales para un resultado más personalizado (y por tanto más lento), mientras que las tarjetas de plan entregan información concreta de forma más rápida. Dijo que en general cotiza poco y prefiere no tener que ingresar muchos datos.",
+      "Encontró \"Beneficios que te cuidan\" sin problema y le llamó la atención por su cercanía con SalcoBrand, que usa habitualmente y que le interesaria saber mas de los beneficios.",
+      "Ubicó la sección de planes (\"Encuentra tu plan ideal\") sin dificultad, valorando que se destaque el valor en pesos porque a veces cuesta entender el valor UF y el porcentaje de cobertura de cada plan.",
+      "Interpretó que \"cotiza tu plan ideal\" pide datos personales para un resultado más personalizado (y por tanto más lento), mientras que las cards de plan entregan información concreta de forma más rápida. Dijo que en general cotiza poco y prefiere no tener que ingresar muchos datos.",
       "Encontró la sección de prestadores, pero señaló como falta real que no hay forma de filtrar por región o comuna — mencionó que si estuviera de vacaciones fuera de Santiago no sabría cuál prestador de la lista le queda cerca.",
       "Llegó a \"Qué deberías saber antes de elegir tu plan\" y, pese a ser enfermera, dijo no saber que el precio se calculaba con esos factores (edad, GES); aunque entendió el contenido, no lo encontró muy relevante para ella y notó que el bloque con la ilustración ocupa bastante espacio.",
       "Entendió la sección, pero destacó que el hecho de que los chequeos preventivos sean \"sin costo\" aparece con letra muy chica pese a ser, en su opinión, la información más importante de esa sección.",
-      "Agregaría un acceso a reembolsos (dice que el 90% de sus visitas a la sucursal virtual son para eso), segmentaría los prestadores por región, agregaría planes sugeridos según etapa de vida/familia, y reduciría el tamaño de la ilustración en el bloque de \"cómo se calcula tu plan\". Le generó dudas el texto \"nueva sucursal virtual para mayores de 18 años\" (le hizo preguntarse si existía una versión para menores) y no reconoció el término \"GES 90\"."
+      "Agregaría un acceso a reembolsos (dice que el 90% de sus visitas a la sucursal virtual son para eso), segmentaría los prestadores por región, agregaría planes sugeridos según etapa de vida/familia, y reduciría el tamaño de la ilustración en el bloque de \"cómo se calcula tu plan\". Le generó dudas el texto \"nueva sucursal virtual para mayores de 18 años\" (le hizo preguntarse si existía una versión para menores)."
     ],
-    survey: [5,null,5,3,3,4,4]
+    homePct: [100, 100, 100, 100, 100, 86, 100, null],
+    survey: [5, 5, 5, 3, 3, 4, 4]
+  },
+  {
+    nombre: "Eduardo",
+    edad: "33",
+    grupo: "2 personas",
+    genero: "Masculino",
+    intro: [
+      "Vive con su pareja y mascotas, actualmente se cambio de fonsa a mas vida, es su primera vez en Isapre",
+      "Comenta que se fijo en el precio y coberturas y que clinicas habian disponibles ya que es de región y quiere saber donde puede atenderse además de santiago. y que se motivación para cambiarse fue que con el 7% vio quer pagaria un poco mas que fonasa con un plan que le permitia atenderse en mejores clinicas."
+    ],
+    home: [
+      "Lo pirmero que que es que ofrece diferentes planes de salud y que me apoyaran en el proceso, y que tiene diferentes beneficios productos coberturas (qu si bien no puede revisar entiende eso por los mensajes o cards) que intenta explicar de manera simple lo que ofrecen.",
+      "Menciona que iria o a la seccion beneficios que te cuidan o del menu que dice prevencion y bienestar.",
+      "comenta que iria a la seccion planes que se adaptan a ti en donde puede ver diferentes planes de salud y cotizar.",
+      "Menciona que para el cotizar es probablemente poner tu sueldo y otros datos y que te contactará un ejecutivo para contratar un plan. y sobre la sección saber mas de tu plan seria aprofundizar o mas detalle de cada plan, menciona que iria primero a esa seccion y luego quizas empezaria un proceso de contratacion en que ojala no tuviera que hablar con ejecutivo y hacerlo de manera autonoma. (menciona que estan muy linda las cardss felicidad UX)",
+      "sabia que estaban en la landing lo vio todos los logos, pero el lo revisaría en cada plan en particular para saber segun que clínicas se puede atender en el plan que elige cual sería en su clínica preferente etc. y que en la landing que salen los prestadores quizas pondrian mas contenido de apoyo para comunicar que es multiprestador consiedera muy corto y frio el mensaje, diría algo mas alineado a los demas que suena cercano y que si quieren saber sobre sus prestadores y regiones en convenio deben revisar cada plan de salud,",
+      "dice que lo sabe porque hizo scroll y que es la seccion con las ilustraciones, pero si no lo hubiera hecho hubiera ido a la sección ayuda en el menu, dice que considera que esta bien su posición pero la subiria sobre los prestadores porque para el es mas importante, y que el contenido se entiende que eran cosas que no sabáin y le parecio amable y simple de entender.",
+      "entiende que todos los planes incluiyen chequeos preventivos y que no tiene costos, y que son para diferentes segmentos que le serviria si tuviera cargas por ejemplo. la informacion la parece suficiente si qusisiera saber mas apretaría el boton de conocer los chequeos.",
+      "cree que la pagina cumpkle mucho mas de los que se espera de una isapre, que la informacion es clara ordenada, y que aunque es obvio que la isapre quiere vender planes, lo hace bien, incluso el video de la entrada le da calma poensando que comprando con otras isapres, que tienen demasiada informacion junta que se muieve y no puedes mirar, y le parece muy interesante que se muestre los precios de los planes aproximados que no vio eso en ninguna otra isapre y le parece innovador y transparente. le parece una pagina ordenada moderna y con la información precisa no agregaria nada, pero quitaria la de los prestadores o le dario menos jerarquia. y menciona que el icono de conocer productos no le hizo sentido."
+    ],
+    homePct: [100, 85, 100, 100, 85, 85, 100, null],
+    survey: [3, 5, 3, 5, 5, 5, 4]
   }
 ];
 
@@ -1686,6 +1833,22 @@ function getSectionByTitle(page, title){
     const el = section.querySelector('.section-title');
     return el && el.textContent.trim() === title;
   });
+}
+
+function setTaskPct(section, pct){
+  const taskEval = section.querySelector('.task-eval');
+  if(!taskEval || pct === null || pct === undefined) return;
+  updateCriticidadScore(taskEval, pct);
+  const marker = taskEval.querySelector('.criticidad-marker');
+  if(marker){
+    marker.style.left = pctToVisual(pct) + '%';
+    marker.classList.add('active');
+  }
+  const chips = taskEval.querySelectorAll('.chip');
+  chips.forEach(c => c.classList.remove('selected'));
+  let chipVal = pct >= 75 ? '1' : (pct >= 40 ? '0.5' : '0');
+  const chip = taskEval.querySelector(`.chip[data-value="${chipVal}"]`);
+  if(chip) chip.classList.add('selected');
 }
 
 // Rellena perfil, observaciones, encuesta y nivel de logro sobre una hoja
@@ -1717,10 +1880,8 @@ function fillParticipantPage(page, data){
     if(!section) return;
     const obs = section.querySelector('.observacion');
     if(obs) obs.textContent = data.home[i] || '';
-    if(i === 0){
-      const chipBtn = section.querySelector(`.chip[data-value="${data.taskLevel}"]`);
-      if(chipBtn) selectChip(chipBtn);
-    }
+    const pct = data.homePct ? data.homePct[i] : null;
+    if(pct !== null && pct !== undefined) setTaskPct(section, pct);
   });
 
   page.querySelectorAll('.survey-row').forEach((row, i) => {
@@ -1754,7 +1915,7 @@ function loadRealTestData(){
 function confirmLoadRealTestData(){
   openConfirmModal(
     '¿Cargar respuestas de las entrevistas?',
-    'Se mantendrá la plantilla con tareas numeradas (Tarea 1–8) y preguntas de intro numeradas. Solo se rellenarán las observaciones, perfiles y encuestas de Patricia, Stephani, Adela y Vivian.',
+    'Se mantendrá la plantilla con tareas numeradas (Tarea 1–8). Se rellenarán las 5 entrevistas del PDF: Patricia, Stephani, Adela, Vivian y Eduardo (observaciones, % por tarea y encuesta).',
     () => loadRealTestData(),
     'Cargar respuestas'
   );
