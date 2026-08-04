@@ -2336,7 +2336,8 @@ function downloadFilledHtml(){
       const before = source.slice(0, idx).replace(/window\.__EMBEDDED_PAGES__\s*=\s*"(?:\\.|[^"\\])*";\s*$/, '');
       source = before + embed + source.slice(idx);
     } else {
-      source = source.replace(/<\/script>/i, embed + '</script>');
+      // Evitar el literal de cierre de script en el fuente (rompe el tag script del HTML)
+      source = source.replace(/<\/script>/i, embed + '<' + '/script>');
     }
     source = source.replace(/modal-overlay open/g, 'modal-overlay');
 
