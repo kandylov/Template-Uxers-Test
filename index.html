@@ -2028,20 +2028,11 @@ function generateSummary(){
 
   const sectionsEl = page.querySelector('.summary-sections');
 
-  const execWrap = document.createElement('div');
-  execWrap.className = 'exec-summary-wrap';
   const execBody = document.createElement('div');
   execBody.className = 'exec-summary';
   execBody.contentEditable = 'true';
   execBody.innerHTML = execHtml || '<p>Escribe el resumen ejecutivo aquí.</p>';
-  const execConclusions = document.createElement('div');
-  execConclusions.className = 'exec-conclusions';
-  execConclusions.innerHTML = `
-    <div class="exec-conclusions-title" contenteditable="true">Conclusiones</div>
-    <div class="exec-conclusions-body" contenteditable="true" data-placeholder="Escribe aquí las conclusiones del resumen ejecutivo…"><p>Escribe las conclusiones clave del testeo. Puedes editar este título y el texto libremente.</p></div>`;
-  execWrap.appendChild(execBody);
-  execWrap.appendChild(execConclusions);
-  sectionsEl.appendChild(makeSummarySection('Resumen ejecutivo', execWrap));
+  sectionsEl.appendChild(makeSummarySection('Resumen ejecutivo', execBody));
 
   const tasksSection = makeSummarySection('Nivel de criticidad promedio por tarea', tasksWrap);
   tasksSection.insertAdjacentHTML('beforeend', `
@@ -2657,16 +2648,6 @@ const PDF_SUMMARY_NOTES = {
     <p>La encuesta promedió <b>4.3/5</b>.</p>
     <p>En conjunto, el diseño <b>cumple razonablemente</b> con los criterios de usabilidad evaluados y esperados.</p>
   `,
-  conclusionesExec: `
-    <p>La página se percibe clara, ordenada y más moderna de lo esperado para una isapre.</p>
-    <p>Las oportunidades están menos en cambiar el contenido completo y más en destacar mejor la información clave para decidir: costos, beneficios diferenciadores, prestadores y accesos de uso frecuente. También aparece la necesidad de ajustar jerarquías para que ciertos bloques importantes no pasen desapercibidos.</p>
-    <p><b>Qué agregarían:</b></p>
-    <ul>
-      <li>Prestadores segmentados por región.</li>
-      <li>Planes sugeridos según etapa de vida o composición familiar.</li>
-      <li>Más beneficios diferenciadores en las cards de planes (ej. telemedicina, descuentos adicionales).</li>
-    </ul>
-  `,
   observaciones: `
     <p><b>Observaciones generales</b></p>
     <ul>
@@ -2694,8 +2675,6 @@ function applyPdfSummaryNotes(){
   if(!page) return;
   const exec = page.querySelector('.exec-summary');
   if(exec) exec.innerHTML = PDF_SUMMARY_NOTES.ejecutivo;
-  const execConcBody = page.querySelector('.exec-conclusions-body');
-  if(execConcBody) execConcBody.innerHTML = PDF_SUMMARY_NOTES.conclusionesExec;
 
   const richBlocks = page.querySelectorAll('.rich-block');
   richBlocks.forEach(block => {
