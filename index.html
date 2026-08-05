@@ -31,12 +31,53 @@ body{
   z-index:50;
   background:var(--paper);
   border-bottom:1px solid var(--border);
-  padding:14px 24px;
+  padding:20px 24px 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:14px;
+  margin-bottom:28px;
+  text-align:left;
+}
+.toolbar-intro{
+  width:100%;
+  max-width:794px;
+  text-align:left;
+}
+.toolbar-title.doc-title,
+h1.toolbar-title{
+  font-size:26px;
+  font-weight:700;
+  margin:0 0 8px;
+  letter-spacing:-.01em;
+  color:#FF585C;
+  text-align:left;
+}
+.toolbar-desc{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.55;
+  font-family:'JetBrains Mono',monospace;
+  margin:0;
+  max-width:720px;
+  text-align:left;
+}
+.toolbar-desc .toolbar-clear{
+  display:inline;
+  margin-left:4px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  padding:0;
+  vertical-align:baseline;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+.toolbar-actions{
   display:flex;
   gap:10px;
   align-items:center;
   flex-wrap:wrap;
-  margin-bottom:28px;
+  width:100%;
 }
 .toolbar .spacer{flex:1;}
 .toolbar small{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:11px;}
@@ -1289,13 +1330,16 @@ h1.doc-title{
 <body>
 
 <div class="toolbar no-print">
-  <button class="primary" onclick="addParticipant()">+ Nuevo entrevistado</button>
-  <button onclick="generateSummary()">Generar resumen</button>
-  <button onclick="window.print()">Exportar a PDF</button>
-  <button onclick="downloadFilledHtml()">Descargar HTML</button>
-  <div class="spacer"></div>
-  <small>Los cambios se guardan en este navegador. Usa “Descargar HTML” para enviar el archivo con todo lo escrito a otra persona.</small>
-  <button class="ghost" onclick="clearSavedState()">Borrar todo</button>
+  <div class="toolbar-intro">
+    <h1 class="doc-title toolbar-title" contenteditable="true">Informe de testeo</h1>
+    <p class="toolbar-desc">Artefacto de testeo para generar ficha de los entrevistados y una bajada de resumen de todas las respuestas. Los cambios se guardan en tu navegador. Puedes usar “Descargar HTML” para enviar el archivo con todo lo escrito a otra persona y que lo pueda abrir en su navegador y editar si lo necesita. <button type="button" class="ghost toolbar-clear" onclick="clearSavedState()">Borrar todo</button></p>
+  </div>
+  <div class="toolbar-actions">
+    <button class="primary" onclick="addParticipant()">+ Nuevo entrevistado</button>
+    <button onclick="generateSummary()">Generar resumen</button>
+    <button onclick="window.print()">Exportar a PDF</button>
+    <button onclick="downloadFilledHtml()">Descargar HTML</button>
+  </div>
 </div>
 
 <nav id="pageNav" class="page-nav no-print" aria-label="Navegación de fichas"></nav>
