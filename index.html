@@ -1149,6 +1149,56 @@ h1.doc-title{
   color:var(--muted);
 }
 
+
+/* Navegación lateral por fichas */
+.page-nav{
+  position:fixed;
+  top:50%;
+  right:20px;
+  transform:translateY(-50%);
+  z-index:40;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  max-height:80vh;
+  overflow:auto;
+  padding:8px 4px;
+}
+.page-nav-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:none;
+  border:none;
+  padding:0;
+  cursor:pointer;
+  text-align:left;
+  color:#9AA3B5;
+  font-size:16px;
+  font-weight:500;
+  line-height:1.2;
+  font-family:inherit;
+}
+.page-nav-item:hover{color:var(--ink);}
+.page-nav-dot{
+  width:12px;
+  height:12px;
+  min-width:12px;
+  border-radius:50%;
+  border:1.5px solid #C5CAD6;
+  background:transparent;
+  box-sizing:border-box;
+}
+.page-nav-item.active{color:var(--ink); font-weight:600;}
+.page-nav-item.active .page-nav-dot{
+  background:#5B6472;
+  border-color:#5B6472;
+}
+@media (max-width:1100px){
+  .page-nav{right:10px;}
+  .page-nav-item span{display:none;}
+}
+
 @media print{
   html, body, *{
     -webkit-print-color-adjust:exact !important;
@@ -1162,7 +1212,7 @@ h1.doc-title{
     height:auto !important;
     overflow:visible !important;
   }
-  .toolbar, .no-print{display:none !important;}
+  .toolbar, .no-print, .page-nav{display:none !important;}
   #pages{
     display:block !important;
     height:auto !important;
@@ -1240,13 +1290,15 @@ h1.doc-title{
 
 <div class="toolbar no-print">
   <button class="primary" onclick="addParticipant()">+ Nuevo entrevistado</button>
-  <button onclick="generateSummary()">Resumen de resultados</button>
+  <button onclick="generateSummary()">Generar resumen</button>
   <button onclick="window.print()">Exportar a PDF</button>
   <button onclick="downloadFilledHtml()">Descargar HTML</button>
   <div class="spacer"></div>
   <small>Los cambios se guardan en este navegador. Usa “Descargar HTML” para enviar el archivo con todo lo escrito a otra persona.</small>
   <button class="ghost" onclick="clearSavedState()">Borrar todo</button>
 </div>
+
+<nav id="pageNav" class="page-nav no-print" aria-label="Navegación de fichas"></nav>
 
 <div id="pages">
 <div class="page">
@@ -6921,6 +6973,7 @@ function generateSummary(){
   pagesEl.appendChild(page);
   page.scrollIntoView({behavior:'smooth', block:'start'});
   scheduleSave();
+  rebuildPageNav();
 }
 
 function addSurveyQuestion(btn){
@@ -7006,6 +7059,7 @@ function addParticipant(){
   const newPage = makeParticipantPage(firstPage);
   pagesEl.appendChild(newPage);
   newPage.scrollIntoView({behavior:'smooth', block:'start'});
+  rebuildPageNav();
 }
 
 function removePage(btn){
@@ -7015,6 +7069,8 @@ function removePage(btn){
     return;
   }
   btn.closest('.page').remove();
+  rebuildPageNav();
+  scheduleSave();
 }
 
 // ---------- Modal de confirmación genérico ----------
@@ -7177,6 +7233,68 @@ function saveState(){
     localStorage.setItem(STORAGE_KEY, document.getElementById('pages').innerHTML);
   }catch(e){ /* si falla, simplemente no se guarda */ }
 }
+
+
+function getPageNavLabel(page, index, participantIndex){
+  if(page.classList.contains('summary-page')) return 'Resultados';
+  return 'Tester N° ' + participantIndex;
+}
+
+function rebuildPageNav(){
+  const nav = document.getElementById('pageNav');
+  const pagesEl = document.getElementById('pages');
+  if(!nav || !pagesEl) return;
+  const pages = Array.from(pagesEl.querySelectorAll(':scope > .page'));
+  nav.innerHTML = '';
+  let participantIndex = 0;
+  pages.forEach((page, i) => {
+    if(!page.id) page.id = 'page-' + (i + 1);
+    const isSummary = page.classList.contains('summary-page');
+    if(!isSummary) participantIndex += 1;
+    const label = getPageNavLabel(page, i, participantIndex);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'page-nav-item';
+    btn.dataset.target = page.id;
+    btn.innerHTML = '<span class="page-nav-dot" aria-hidden="true"></span><span>' + label + '</span>';
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.dataset.target);
+      if(!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      nav.querySelectorAll('.page-nav-item').forEach(el => el.classList.remove('active'));
+      btn.classList.add('active');
+    });
+    nav.appendChild(btn);
+  });
+  updatePageNavActive();
+}
+
+function updatePageNavActive(){
+  const nav = document.getElementById('pageNav');
+  const pagesEl = document.getElementById('pages');
+  if(!nav || !pagesEl) return;
+  const pages = Array.from(pagesEl.querySelectorAll(':scope > .page'));
+  if(!pages.length) return;
+  const offset = 120;
+  let activeId = pages[0].id;
+  for(const page of pages){
+    const top = page.getBoundingClientRect().top;
+    if(top - offset <= 0) activeId = page.id;
+  }
+  nav.querySelectorAll('.page-nav-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.target === activeId);
+  });
+}
+
+let __pageNavScrollTick = false;
+window.addEventListener('scroll', () => {
+  if(__pageNavScrollTick) return;
+  __pageNavScrollTick = true;
+  requestAnimationFrame(() => {
+    updatePageNavActive();
+    __pageNavScrollTick = false;
+  });
+}, { passive: true });
 
 function clearSavedState(){
   if(!confirm('¿Empezar de cero en esta pestaña?\n\nPodrás llenar y descargar PDF/HTML.\nSi recargas el link de GitHub, vuelve el informe publicado.')) return;
@@ -7644,6 +7762,7 @@ window.__EMBEDDED_PAGES__ = "\n<div class=\"page\">\n      <div class=\"page-too
     upgradeBinaryCheckboxes();
     colorizeExecStats();
     stripExecConclusions();
+    rebuildPageNav();
     return;
   }
 
@@ -7658,6 +7777,7 @@ window.__EMBEDDED_PAGES__ = "\n<div class=\"page\">\n      <div class=\"page-too
     upgradeBinaryCheckboxes();
     colorizeExecStats();
     stripExecConclusions();
+    rebuildPageNav();
     return;
   }
 
@@ -7669,12 +7789,14 @@ window.__EMBEDDED_PAGES__ = "\n<div class=\"page\">\n      <div class=\"page-too
     upgradeBinaryCheckboxes();
     colorizeExecStats();
     stripExecConclusions();
+    rebuildPageNav();
     return;
   }
 
   // 4) Primera apertura vacía
   loadRealTestData();
   stripExecConclusions();
+  rebuildPageNav();
 })();
 
 
